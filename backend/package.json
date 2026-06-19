@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "express": "^5.2.1",
+    "got": "^15.0.5",
     "openrouteservice-js": "^0.4.1"
   }
 }
