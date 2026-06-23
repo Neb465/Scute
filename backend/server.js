@@ -1,6 +1,10 @@
 import express from "express";
-import search from "./routes/compare.js";
-import mapclick from "./routes/mapclick.js";
+
+import mapAPI from "./routes/mapAPI.js";
+import user from "./routes/user.js";
+
+import errorHandler from "./middleware/error.js";
+import notFound from "./middleware/notFound.js";
 
 const app = express();
 const port = process.env.PORT || 6767;
@@ -9,8 +13,12 @@ const port = process.env.PORT || 6767;
 app.use(express.json());
 
 //Routes
-app.use("/api/compare", search);
-app.use("/api/mapclick", mapclick);
+app.use("/api/map", mapAPI);
+app.use("/api/user", user);
+
+//Error Handler
+app.use(notFound);
+app.use(errorHandler);
 
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
