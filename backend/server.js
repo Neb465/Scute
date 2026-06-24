@@ -13,8 +13,8 @@ const port = process.env.PORT || 6767;
 app.use(express.json());
 
 //Routes
-app.use("/api/map", mapAPI);
-app.use("/api/user", user);
+app.use("/api/maps", mapAPI);
+app.use("/api/users", user);
 
 //Error Handler
 app.use(notFound);

@@ -1,14 +1,22 @@
-import pgp from "pg-promise";
+import pgPromise from "pg-promise";
+
+const pgp = pgPromise({});
 
 const username = process.env.DB_USER
-const pass = process.env.DB_PASS
+const pass = process.env.DB_PASSWORD
 const host = process.env.DB_HOST
-const port = process.env.DB_PORT
+const port = process.env.DB_PORT || 7676
 const database = process.env.DB_NAME
 
-const connectionConfig
+const config = {
+  host: host,
+  port: port,
+  database: database,
+  user: username,
+  password: pass,
+}
 
-const db = pgp(`postgres://${username}:${pass}@${host}:${port}/${database}`);
+const db = pgp(config);
 
 //NEEDS TO BE TESTED
 

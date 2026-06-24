@@ -7,10 +7,9 @@ import {
 
 const router = express.Router();
 
-router.get("/click", getMapClick);
+router.get("/interactions", getMapClick);
+router.get("/places", getSearch);
 
-router.get("/search", getSearch);
-
-router.post("/calcDist", calcDist);
+router.post("/distances", calcDist);
 
 export default router;

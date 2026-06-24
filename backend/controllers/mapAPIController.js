@@ -58,7 +58,7 @@ export const getSearch = async (req, res, next) => {
 
 // @desc Calculate distances between two points on map
 // @route POST /api/map/calcDist
-export const calcDist = async (req, res) => {
+export const calcDist = async (req, res, next) => {
 	try {
 		const result = await fetch(
 			"https://api.openrouteservice.org/v2/directions/foot-walking",
