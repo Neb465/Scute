@@ -8,7 +8,7 @@ export const authorizeWithId = (allowedRoles) => {
       }
 
       //Simple form of row level security
-			if (user.id !== req.params.id) {
+			if (user.id !== parseInt(req.params.id) && user.role !== "admin") {
 				return res.status(403).json({ msg: "Unauthorized access" });
 			}
 

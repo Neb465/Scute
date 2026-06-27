@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import ms from "ms";
 import { createUserService } from "../models/userModel.js";
 import {
@@ -69,6 +70,11 @@ export const loginUser = async (req, res, next) => {
 			.setExpirationTime(process.env.JWT_REFRESH_EXPIRATION || "7d")
 			.sign(refreshSecret);
 
+		const hashedRefreshToken = await crypto
+			.createHash("sha256")
+			.update(refreshToken)
+			.digest("hex");
+
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
@@ -81,12 +87,11 @@ export const loginUser = async (req, res, next) => {
 			secure: process.env.NODE_ENV === "production",
 			sameSite: "lax",
 			maxAge: ms("7d"),
-			path: "/api/auth/refresh",
 		});
 
 		await storeRefreshTokenService(
 			user.id,
-			req.cookies.refreshToken,
+			hashedRefreshToken,
 			Date.now() + ms("7d"),
 		);
 
@@ -142,13 +147,19 @@ export const refreshUser = async (req, res, next) => {
 
 		if (!payload) return res.status(403).json({ msg: "You little rat." });
 
+		const hashedRefreshToken = await crypto
+			.createHash("sha256")
+			.update(refreshToken)
+			.digest("hex");
+
 		//second part of auth, checking db
-		const user = await getUserByRefreshTokenService(refreshToken);
+		const user = await getUserByRefreshTokenService(hashedRefreshToken);
 
 		if (!user) {
 			return res.status(403).json({ msg: "Refresh tokens don't match" });
 		}
 
+		//check if refresh token expired
 		const expired = Date.now() - user.expires_at;
 
 		if (expired >= 0) {
