@@ -7,22 +7,6 @@ import {
 } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 
-export const createUser = async (req, res, next) => {
-	const { name, email, password } = req.body;
-	try {
-		const saltRounds = 10;
-		const hashedPass = await bcrypt.hash(password, saltRounds);
-
-		const newUser = await createUserService(name, email, hashedPass);
-		res.status(201).json({
-			msg: "User created successfully",
-			data: newUser,
-		});
-	} catch (e) {
-		next(e);
-	}
-};
-
 export const getAllUsers = async (req, res, next) => {
 	try {
 		const users = await getAllUsersService();

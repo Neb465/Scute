@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
-import { getUserPasswordHashById } from "../../models/userModel.js";
-
+import { getPasswordByIdService } from "../../models/authModel.js";
 
 /* 
 Function to double check if the user REALLY meant to do some action. 
@@ -12,7 +11,7 @@ export const validatePassword = async (req, res, next) => {
 	const { password } = req.body;
 
 	try {
-		const hashedPass = await getUserPasswordHashById(req.params.id);
+		const hashedPass = await getPasswordByIdService(req.params.id);
 
 		if (!hashedPass) {
 			return res

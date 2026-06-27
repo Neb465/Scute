@@ -3,12 +3,11 @@
 import Joi from "joi";
 
 const userSchema = Joi.object({
-	name: Joi.string().min(3).required(),
 	email: Joi.string().email().required(),
 	password: Joi.string().required(),
 });
 
-const validateInput = (req, res, next) => {
+const validateLogin = (req, res, next) => {
 	const { error } = userSchema.validate(req.body);
 	if (error)
 		return res.status(400).json({
@@ -18,4 +17,4 @@ const validateInput = (req, res, next) => {
 	next();
 };
 
-export default validateInput;
+export default validateLogin;
