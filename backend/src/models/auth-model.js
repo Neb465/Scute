@@ -34,8 +34,8 @@ export const storeRefreshTokenService = async (
 	);
 };
 
-export const deleteRefreshTokenService = async (user_id) => {
-	await db.oneOrNone("DELETE FROM refresh_tokens WHERE user_id = $1", [id]);
+export const deleteRefreshTokenService = async (user_id, token_hash) => {
+	await db.oneOrNone("DELETE FROM refresh_tokens WHERE user_id = $1 AND token_hash = $2", [user_id, token_hash]);
 };
 
 export const storePassResetService = async (user_id, tokenHash, expiration) => {

@@ -114,11 +114,25 @@ export const loginUser = async (req, res, next) => {
 
 export const logoutUser = async (req, res, next) => {
 	try {
-		const userId = req.cookies.refreshToken.id;
+		const refreshToken = req.cookies.refreshToken;
+		const hashedToken = await crypto
+			.createHash("sha256")
+			.update(refreshToken)
+			.digest("hex");
+
+		const refreshSecret = new TextEncoder().encode(
+			process.env.JWT_REFRESH_TOKEN_SECRET,
+		);
+
+		const { payload } = await jwtVerify(refreshToken, refreshSecret);
+
+		if (!payload) return res.status(403).json({ msg: "You little rat." });
+
+		const userId = payload.id;
+
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
-		await deleteRefreshTokenService(userId);
-
+		await deleteRefreshTokenService(userId, hashedToken);
 		return res.status(200).json({
 			msg: "Logged out successfully",
 		});

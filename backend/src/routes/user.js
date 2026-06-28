@@ -5,7 +5,7 @@ import {
 	getUserById,
 	updateUser,
 } from "../controllers/user-controller.js";
-import validatePassword from "../middleware/auth/passwordHandler.js";
+import validatePassword from "../middleware/auth/password-handler.js";
 import { authenticate } from "../middleware/auth/authentication-handler.js";
 import {
 	authorizeWithId,
