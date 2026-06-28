@@ -2,8 +2,9 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import ms from "ms";
 import nodemailer from "nodemailer";
-import { createUserService } from "../models/user-model.js";
+import { createUserService, updateUserPassService } from "../models/user-model.js";
 import {
+	deletePassResetService,
 	deleteRefreshTokenService,
 	getPassResetService,
 	getUserByEmailService,
@@ -163,9 +164,9 @@ export const refreshUser = async (req, res, next) => {
 		}
 
 		//check if refresh token expired
-		const expired = Date.now() - user.expires_at;
+		const expired = new Date() > user.expires_at;
 
-		if (expired >= 0) {
+		if (expired) {
 			await deleteRefreshTokenService(user.user_id);
 
 			res.clearCookie("accessToken");
@@ -222,7 +223,8 @@ export const forgotPassword = async (req, res, next) => {
 			hashedToken,
 			new Date(Date.now() + ms("1h")),
 		);
-
+		
+		//*IMPORTANT* Change reset url to actual website's reset user page. Where the user will input their new password and press a button to call reset password.
 		const resetUrl = `${process.env.SMTP_BASE_URL}/api/auth/resetPassword?token=${hashedToken}`;
 
 		const transporter = nodemailer.createTransport({
@@ -246,6 +248,8 @@ export const forgotPassword = async (req, res, next) => {
 				<p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>
 			`,
 		});
+
+		res.status(200).json({msg: "Password reset email sent"});
 	} catch (e) {
 		next(e);
 	}
@@ -253,24 +257,39 @@ export const forgotPassword = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
 	//both checked in inputvalidators
-	const { newPassword } = req.body;
-	const { token } = req.params;
+	const { password } = req.body;
+	const { token } = req.query;
 	try {
 		const user = await getPassResetService(token);
-		if(!user){
-			return res.status(404).json({msg: "User password reset request not found in database"})
+		if (!user) {
+			return res
+				.status(404)
+				.json({ msg: "User password reset request not found in database" });
 		}
 
 		//check if refresh token expired
-		const expired = Date.now() - user.expires_at;
+		const expired = new Date() > user.expires_at;
 
-		if (expired >= 0) {
-			await deleteRefreshTokenService(user.user_id);
+		if (expired) {
+			await deletePassResetService(user.user_id);
 
-			res.clearCookie("accessToken");
-			res.clearCookie("refreshToken");
-			return res.status(403).json({ msg: "Refresh token expired" });
+			return res.status(403).json({ msg: "Password reset token expired" });
 		}
+
+		if (token !== user.token_hash) {
+			return res
+				.status(403)
+				.json({ msg: "Input token and database token don't match" });
+		}
+
+		const saltRounds = 10;
+		const hashedPass = await bcrypt.hash(password, saltRounds);
+
+		const updatedUser = await updateUserPassService(user.user_id, hashedPass);
+
+		await deletePassResetService(user.user_id);
+
+		res.status(200).json({msg: "User updated successfully"})
 	} catch (e) {
 		next(e);
 	}

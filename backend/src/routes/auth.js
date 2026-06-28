@@ -18,6 +18,6 @@ router.post("/login", validateInput(loginSchema), loginUser);
 router.post("/logout", authenticate, logoutUser);
 router.post("/refresh", refreshUser);
 router.post("/forgot-pass", validateInput(forgotPassSchema), forgotPassword);
-router.post("/forgot-pass", validateInput(resetPassSchema), resetPassword);
+router.post("/reset-pass", validateInput(resetPassSchema), resetPassword);
 
 export default router;

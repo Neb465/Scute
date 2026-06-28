@@ -3,7 +3,8 @@ import {
 	deleteUserService,
 	getAllUsersService,
 	getUserByIdService,
-	updateAllUserInfoService,
+	updateUserService,
+	updateUserPassService
 } from "../models/user-model.js";
 import bcrypt from "bcrypt";
 
@@ -36,11 +37,11 @@ export const getUserById = async (req, res, next) => {
 };
 
 //currently the only function with password validation. Maybe change in the future
-export const updateAllUserInfo = async (req, res, next) => {
+export const updateUser = async (req, res, next) => {
 	const { name, email, password } = req.body;
 
 	try {
-		const updatedUser = await updateAllUserInfoService(req.params.id, name, email);
+		const updatedUser = await updateUserAllService(req.params.id, name, email);
 
 		if (!updatedUser) {
 			return res.status(404).json({ msg: "User not found" });

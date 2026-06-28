@@ -37,9 +37,9 @@ export const userPassUpdateSchema = Joi.object({
 });
 
 export const forgotPassSchema = Joi.object({
-	email = email_field
+	email: email_field
 })
 
 export const resetPassSchema = Joi.object({
-	newPassword = update_pass_field
+	password: update_pass_field
 })

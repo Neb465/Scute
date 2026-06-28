@@ -7,7 +7,10 @@ export const getAllUsersService = async () => {
 };
 
 export const getUserByIdService = async (id) => {
-	const result = await db.one("SELECT id, name, email, role FROM users where id = $1", [id]);
+	const result = await db.one(
+		"SELECT id, name, email, role FROM users where id = $1",
+		[id],
+	);
 	return result;
 };
 
@@ -19,7 +22,7 @@ export const createUserService = async (name, email, hashedPass) => {
 	return result;
 };
 
-export const updateAllUserInfoService = async (id, name, email) => {
+export const updateUserService = async (id, name, email) => {
 	const result = await db.oneOrNone(
 		"UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING id, name, email",
 		[name, email, id],
@@ -27,7 +30,13 @@ export const updateAllUserInfoService = async (id, name, email) => {
 	return result;
 };
 
-
+export const updateUserPassService = async (id, hashedPass) => {
+	const result = await db.oneOrNone(
+		"UPDATE users SET password = $1 WHERE id = $2",
+		[hashedPass, id],
+	);
+	return result;
+};
 
 export const deleteUserService = async (id) => {
 	const result = await db.oneOrNone(

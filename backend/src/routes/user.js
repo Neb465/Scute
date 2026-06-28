@@ -3,7 +3,7 @@ import {
 	deleteUser,
 	getAllUsers,
 	getUserById,
-	updateAllUserInfo,
+	updateUser,
 } from "../controllers/user-controller.js";
 import validatePassword from "../middleware/auth/passwordHandler.js";
 import { authenticate } from "../middleware/auth/authentication-handler.js";
@@ -30,7 +30,7 @@ router.put(
 	validatePassword,
 	authenticate,
 	authorizeWithId(["admin", "user"]),
-	updateAllUserInfo,
+	updateUser,
 );
 
 router.delete(
