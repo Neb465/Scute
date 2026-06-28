@@ -3,8 +3,8 @@ import {
 	deleteUserService,
 	getAllUsersService,
 	getUserByIdService,
-	updateUserService,
-} from "../models/userModel.js";
+	updateAllUserInfoService,
+} from "../models/user-model.js";
 import bcrypt from "bcrypt";
 
 export const getAllUsers = async (req, res, next) => {
@@ -36,11 +36,11 @@ export const getUserById = async (req, res, next) => {
 };
 
 //currently the only function with password validation. Maybe change in the future
-export const updateUser = async (req, res, next) => {
+export const updateAllUserInfo = async (req, res, next) => {
 	const { name, email, password } = req.body;
 
 	try {
-		const updatedUser = await updateUserService(req.params.id, name, email);
+		const updatedUser = await updateAllUserInfoService(req.params.id, name, email);
 
 		if (!updatedUser) {
 			return res.status(404).json({ msg: "User not found" });
@@ -59,8 +59,7 @@ export const deleteUser = async (req, res, next) => {
 	try {
 		const deletedUser = await deleteUserService(req.params.id);
 
-		if (!deletedUser)
-			return res.status(404).json({ msg: "User not found" });
+		if (!deletedUser) return res.status(404).json({ msg: "User not found" });
 
 		res.status(200).json({
 			msg: "User deleted successfully",

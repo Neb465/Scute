@@ -19,13 +19,15 @@ export const createUserService = async (name, email, hashedPass) => {
 	return result;
 };
 
-export const updateUserService = async (id, name, email) => {
+export const updateAllUserInfoService = async (id, name, email) => {
 	const result = await db.oneOrNone(
 		"UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING id, name, email",
 		[name, email, id],
 	);
 	return result;
 };
+
+
 
 export const deleteUserService = async (id) => {
 	const result = await db.oneOrNone(

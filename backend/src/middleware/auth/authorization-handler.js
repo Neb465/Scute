@@ -12,6 +12,7 @@ export const authorizeWithId = (allowedRoles) => {
 				return res.status(403).json({ msg: "Unauthorized access" });
 			}
 
+      //Check roles
 			if (!allowedRoles.includes(req.user.role)) {
 				return res.status(403).json({ msg: "Unauthorized access" });
 			}

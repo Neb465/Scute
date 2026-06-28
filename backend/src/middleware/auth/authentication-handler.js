@@ -1,5 +1,5 @@
 import { jwtVerify } from "jose";
-import { getUserByIdService } from "../../models/userModel.js";
+import { getUserByIdService } from "../../models/user-model.js";
 
 export const authenticate = async (req, res, next) => {
 	try {

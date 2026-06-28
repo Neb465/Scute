@@ -23,13 +23,38 @@ export const getUserByRefreshTokenService = async (tokenHash) => {
 	return result;
 };
 
-export const storeRefreshTokenService = async (user_id, token, expiration) => {
-	db.none(
-		"INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, to_timestamp($3 / 1000.0)::timestamp)",
-		[user_id, token, expiration],
+export const storeRefreshTokenService = async (
+	user_id,
+	tokenHash,
+	expiration,
+) => {
+	await db.none(
+		"INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)",
+		[user_id, tokenHash, expiration],
 	);
 };
 
 export const deleteRefreshTokenService = async (user_id) => {
-	db.oneOrNone("DELETE FROM refresh_tokens WHERE user_id = $1", [id]);
+	await db.oneOrNone("DELETE FROM refresh_tokens WHERE user_id = $1", [id]);
 };
+
+export const storePassResetService = async (
+	user_id,
+	tokenHash,
+	expiration,
+) => {
+	await db.none(
+		"INSERT INTO password_resets (token, expires_at) VALUES ($1, $2, $3)",
+		[user_id, tokenHash, expiration],
+	);
+};
+
+export const getPassResetService = async (hashedToken) => {
+	const result = await db.one(
+		"SELECT * FROM password_resets WHERE token = $1",
+		[hashedToken],
+	);
+	return result;
+};
+
+export const deletePassReset

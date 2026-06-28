@@ -1,13 +1,16 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import ms from "ms";
-import { createUserService } from "../models/userModel.js";
+import nodemailer from "nodemailer";
+import { createUserService } from "../models/user-model.js";
 import {
 	deleteRefreshTokenService,
+	getPassResetService,
 	getUserByEmailService,
 	getUserByRefreshTokenService,
+	storePassResetService,
 	storeRefreshTokenService,
-} from "../models/authModel.js";
+} from "../models/auth-model.js";
 import { jwtVerify, SignJWT } from "jose";
 
 export const registerUser = async (req, res, next) => {
@@ -92,7 +95,7 @@ export const loginUser = async (req, res, next) => {
 		await storeRefreshTokenService(
 			user.id,
 			hashedRefreshToken,
-			Date.now() + ms("7d"),
+			new Date(Date.now() + ms("7d")),
 		);
 
 		return res.status(200).json({
@@ -195,6 +198,79 @@ export const refreshUser = async (req, res, next) => {
 				email: user.email,
 			},
 		});
+	} catch (e) {
+		next(e);
+	}
+};
+
+export const forgotPassword = async (req, res, next) => {
+	const { email } = req.body;
+
+	try {
+		const user = await getUserByEmailService(email);
+
+		if (!user) {
+			return res.status(404).json({ msg: "User not found" });
+		}
+
+		const token = crypto.randomBytes(32);
+		const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+		const expires_at = new Date();
+
+		await storePassResetService(
+			user.id,
+			hashedToken,
+			new Date(Date.now() + ms("1h")),
+		);
+
+		const resetUrl = `${process.env.SMTP_BASE_URL}/api/auth/resetPassword?token=${hashedToken}`;
+
+		const transporter = nodemailer.createTransport({
+			host: process.env.SMTP_HOST,
+			port: process.env.SMTP_PORT || 587,
+			secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
+			//requireTLS: true, //forces STARTTLS upgrade
+			auth: {
+				user: process.env.SMTP_USER,
+				pass: process.env.SMTP_PASSWORD,
+			},
+		});
+
+		await transporter.sendMail({
+			from: '"UMaps" <do-not-respond@umaps.com>',
+			to: email,
+			subject: "Password Reset Request",
+			html: `
+				<p>You requested a password reset.</p>
+				<p><a href="${resetUrl}">Click here to reset your password</a></p>
+				<p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>
+			`,
+		});
+	} catch (e) {
+		next(e);
+	}
+};
+
+export const resetPassword = async (req, res, next) => {
+	//both checked in inputvalidators
+	const { newPassword } = req.body;
+	const { token } = req.params;
+	try {
+		const user = await getPassResetService(token);
+		if(!user){
+			return res.status(404).json({msg: "User password reset request not found in database"})
+		}
+
+		//check if refresh token expired
+		const expired = Date.now() - user.expires_at;
+
+		if (expired >= 0) {
+			await deleteRefreshTokenService(user.user_id);
+
+			res.clearCookie("accessToken");
+			res.clearCookie("refreshToken");
+			return res.status(403).json({ msg: "Refresh token expired" });
+		}
 	} catch (e) {
 		next(e);
 	}

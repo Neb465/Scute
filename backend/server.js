@@ -7,8 +7,8 @@ import mapAPI from "./src/routes/mapAPI.js";
 import user from "./src/routes/user.js";
 import auth from "./src/routes/auth.js";
 
-import errorHandler from "./src/middleware/errorHandler.js";
-import notFound from "./src/middleware/notFound.js";
+import errorHandler from "./src/middleware/error-handler.js";
+import notFound from "./src/middleware/not-found.js";
 
 const app = express();
 const port = process.env.PORT || 8000;
