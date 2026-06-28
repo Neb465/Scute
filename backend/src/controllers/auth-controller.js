@@ -2,11 +2,15 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import ms from "ms";
 import nodemailer from "nodemailer";
-import { createUserService, updateUserPassService } from "../models/user-model.js";
+import {
+	createUserService,
+	updateUserPassService,
+} from "../models/user-model.js";
 import {
 	deletePassResetService,
 	deleteRefreshTokenService,
 	getPassResetService,
+	getPasswordByIdService,
 	getUserByEmailService,
 	getUserByRefreshTokenService,
 	storePassResetService,
@@ -237,7 +241,7 @@ export const forgotPassword = async (req, res, next) => {
 			hashedToken,
 			new Date(Date.now() + ms("1h")),
 		);
-		
+
 		//*IMPORTANT* Change reset url to actual website's reset user page. Where the user will input their new password and press a button to call reset password.
 		const resetUrl = `${process.env.SMTP_BASE_URL}/api/auth/resetPassword?token=${hashedToken}`;
 
@@ -263,12 +267,13 @@ export const forgotPassword = async (req, res, next) => {
 			`,
 		});
 
-		res.status(200).json({msg: "Password reset email sent"});
+		res.status(200).json({ msg: "Password reset email sent" });
 	} catch (e) {
 		next(e);
 	}
 };
 
+//ensure user cannot use the same password
 export const resetPassword = async (req, res, next) => {
 	//both checked in inputvalidators
 	const { password } = req.body;
@@ -299,11 +304,19 @@ export const resetPassword = async (req, res, next) => {
 		const saltRounds = 10;
 		const hashedPass = await bcrypt.hash(password, saltRounds);
 
+		const oldHashedPass = await getPasswordByIdService(user.user_id);
+
+		if (await bcrypt.compare(password, oldHashedPass)) {
+			return res
+				.status(400)
+				.json({ msg: "New password cannot be the same as the old password!" });
+		}
+
 		const updatedUser = await updateUserPassService(user.user_id, hashedPass);
 
 		await deletePassResetService(user.user_id);
 
-		res.status(200).json({msg: "User updated successfully"})
+		res.status(200).json({ msg: "User updated successfully" });
 	} catch (e) {
 		next(e);
 	}
