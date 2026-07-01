@@ -18,7 +18,6 @@ const port = process.env.PORT || 8000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors()); //change later to only allow frontend to make requests
-app.use()
 
 //Routes
 app.use("/api/maps", mapAPI);
