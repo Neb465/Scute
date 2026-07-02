@@ -5,7 +5,7 @@ import {
 	getUserByIdService,
 	updateUserService,
 	updateUserPassService
-} from "../models/user-model.js";
+} from "../models/UserModel.js";
 import bcrypt from "bcrypt";
 
 export const getAllUsers = async (req, res, next) => {

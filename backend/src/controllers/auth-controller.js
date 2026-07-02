@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 import {
 	createUserService,
 	updateUserPassService,
-} from "../models/user-model.js";
+} from "../models/UserModel.js";
 import {
 	deletePassResetService,
 	deleteRefreshTokenService,
@@ -15,7 +15,7 @@ import {
 	getUserByRefreshTokenService,
 	storePassResetService,
 	storeRefreshTokenService,
-} from "../models/auth-model.js";
+} from "../models/AuthModel.js";
 import { jwtVerify, SignJWT } from "jose";
 
 export const registerUser = async (req, res, next) => {
