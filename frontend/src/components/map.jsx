@@ -7,12 +7,13 @@ import {
 	ZoomControl,
 } from "react-leaflet";
 import "../styles/map.css";
-import SearchBar from "./searchbar";
-import Profile from "./profile";
+import SearchBar from "./searchbar.jsx"
+import Profile from "./profile.jsx"
+
 
 function Map() {
 	return (
-		<div className="h-screen w-screen">
+		<div className="h-screen w-screen relative">
 			<MapContainer
 				bounds={[
 					[38.98113, -76.95163],
@@ -28,16 +29,15 @@ function Map() {
 				zoomControl={false}
 				className="h-full w-full"
 			>
-				<div className="flex flex-row justify-between">
-					<SearchBar />
-					<Profile/>
-				</div>
-			
-
 				<TileLayer
 					attribution="Made with 1000 tears"
 					url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
 				/>
+
+				<div className="flex flex-row justify-between">
+					<SearchBar />
+					<Profile/>
+				</div>
 
 				<Marker position={[51.505, -0.09]}>
 					<Popup>
@@ -45,8 +45,7 @@ function Map() {
 					</Popup>
 				</Marker>
 				
-				
-
+			
 				<ZoomControl position="bottomright" />
 			</MapContainer>
 
