@@ -7,9 +7,8 @@ import {
 	ZoomControl,
 } from "react-leaflet";
 import "../styles/map.css";
-import SearchBar from "./searchbar.jsx"
-import Profile from "./profile.jsx"
-
+import SearchBox from "./searchBox.jsx";
+import Profile from "./profile.jsx";
 
 function Map() {
 	return (
@@ -31,12 +30,13 @@ function Map() {
 			>
 				<TileLayer
 					attribution="Made with 1000 tears"
-					url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
+					url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+					maxZoom={19}
 				/>
 
 				<div className="flex flex-row justify-between">
-					<SearchBar />
-					<Profile/>
+					<SearchBox />
+					<Profile />
 				</div>
 
 				<Marker position={[51.505, -0.09]}>
@@ -44,11 +44,9 @@ function Map() {
 						A pretty CSS3 popup. <br /> Easily customizable.
 					</Popup>
 				</Marker>
-				
-			
+
 				<ZoomControl position="bottomright" />
 			</MapContainer>
-
 		</div>
 	);
 }

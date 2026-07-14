@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { getPasswordByIdService } from "../../models/auth-model.js";
+import { getPasswordByIdService } from "../../models/AuthModel.js";
 
 /* 
 Function to double check if the user REALLY meant to do some action. 
