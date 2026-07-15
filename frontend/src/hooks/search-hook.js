@@ -1,20 +1,19 @@
 import { useState, useEffect } from "react";
 import { renderAutoFill } from "../api/search-api";
 
-export function useStartQuery() {
+export const useStartQuery = () => {
 	const [query, setQuery] = useState("");
 
 	return { query, setQuery };
 }
 
-export function useEndQuery() {
+export const useEndQuery = () => {
 	const [query, setQuery] = useState("");
 
 	return { query, setQuery };
 }
 
-
-export function useAutoFill(query) {
+export const useAutoFill = (query) => {
 	const [results, setResults] = useState([]);
 
 	useEffect(() => {
@@ -28,6 +27,8 @@ export function useAutoFill(query) {
 		const timeout = setTimeout(async () => {
 			const data = await renderAutoFill(query);
 
+			console.log(data);
+
 			setResults(data);
 		}, 500);
 
@@ -35,4 +36,16 @@ export function useAutoFill(query) {
 	}, [query]);
 
 	return { results, setResults };
+}
+
+export const useStartCoords = () => {
+	const [coords, setCoords] = useState([])
+
+	return { coords, setCoords }
+}
+
+export const useEndCoords = () => {
+	const [coords, setCoords] = useState([])
+
+	return { coords, setCoords }
 }
