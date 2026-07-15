@@ -6,7 +6,7 @@ import {
 	Popup,
 	ZoomControl,
 } from "react-leaflet";
-import "../styles/map.css";
+import "../styles/tailwindauto.css";
 import SearchBox from "./searchBox.jsx";
 import Profile from "./profile.jsx";
 

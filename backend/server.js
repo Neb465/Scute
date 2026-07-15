@@ -7,6 +7,7 @@ import mapAPI from "./src/routes/mapAPI.js";
 import user from "./src/routes/user.js";
 import auth from "./src/routes/auth.js";
 import geocode from "./src/routes/geocode.js";
+import pathfinding from "./src/routes/pathfinding.js";
 
 import errorHandler from "./src/middleware/error-handler.js";
 import notFound from "./src/middleware/not-found.js";
@@ -25,6 +26,7 @@ app.use("/api/maps", mapAPI);
 app.use("/api/users", limiter, user);
 app.use("/api/auth", limiter, auth);
 app.use("/api/geocode", geocode);
+app.use("/api/astar", pathfinding); //ADD LIMITER IN FUTURE
 
 //Error Handler
 app.use(notFound);

@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
-from networkx import nx
 from astar import a_star
+import networkx as nx
 
 app = Flask(__name__)
 
@@ -18,7 +18,7 @@ def calc_path():
   goal = data.get("goal")
 
   if start is None or goal is None:
-    return jsonify({"error": "start and goal are required"}), 400
+    return jsonify({"msg": "Start and goal are required"}), 400
   
   path = a_star(start, goal, graph, graph_nodes, graph_node_pos_dict)
 

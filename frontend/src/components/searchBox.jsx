@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/searchbar.css";
+import "../styles/tailwindauto.css";
 import { useAutoFill, useEndCoords, useEndQuery, useStartCoords, useStartQuery } from "../hooks/search-hook";
 
 const SearchBox = () => {
@@ -79,8 +79,17 @@ const SearchBox = () => {
 				<div className="rounded-xl h-2/10 w-5/6 my-3 px-3 py-2.5">
 					<button 
 						className="w-full rounded-xl py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
-						onClick={() => {
-							{startCoords.coords && endCoords.coords && }
+						onClick={async () => {
+							{
+								startCoords.coords && 
+								endCoords.coords && 
+								await fetch(
+									"http://localhost:8000/api/astar",
+									{
+										method: "POST"
+									}
+								)
+							}
 						}}
 					>
 						Calculate Route

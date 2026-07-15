@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/profile.css";
+import "../styles/tailwindauto.css";
 import { useButton } from "../hooks/profile-hook";
 
 const Profile = () => {

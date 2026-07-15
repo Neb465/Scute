@@ -241,18 +241,23 @@ def get_neighbors(graph, graph_nodes, node_id: str):
 
     return neighbors_pos
 
-def a_star(start: tuple[float, float], goal: tuple[float, float], graph, graph_nodes, graph_node_pos_dict):
+#Request from js can only use lists, not tuples. So, start and goal must be lists, not tuples.
+def a_star(start: list[float, float], goal: list[float, float], graph, graph_nodes, graph_node_pos_dict):
     """Function to run the main A* algorithm.
 
     Args:
-      start (tuple[float, float]): Position tuple with the format (Longitude, Latitude).
-      goal (tuple[float, float]): Position tuple with the format (Longitude, Latitude).
+      start (list[float, float]): Position list with the format [Longitude, Latitude].
+      goal (list[float, float]): Position list with the format [Longitude, Latitude].
       graph: The graph.
 
     Returns:
       list[Node]: A list of the nodes in the constructed path.
     
     """
+    #Convert start and goal to tuples to prevent type issues in code
+    start = tuple(start)
+    goal = tuple(goal)
+
     startNodeID = get_nodeId_from_pos(start, graph_node_pos_dict)
     startNode = Node(0, calc_dist(start[0], start[1], goal[0], goal[1]), calc_dist(start[0], start[1], goal[0], goal[1]), None, start, startNodeID)
     
@@ -264,47 +269,55 @@ def a_star(start: tuple[float, float], goal: tuple[float, float], graph, graph_n
     closedSet = set()
 
     while len(openHeapQ) > 0:
-        currentNode = heapq.heappop(openHeapQ)
-        openDict.pop(currentNode.node_id)
+      currentNode = heapq.heappop(openHeapQ)
+      openDict.pop(currentNode.node_id)
 
-        if (currentNode.pos == goal):
-          return reconstruct_path(currentNode)
-        
-        closedSet.add(currentNode)
+      if (currentNode.pos == goal):
+        return reconstruct_path(currentNode)
+      
+      closedSet.add(currentNode)
 
-        currentNeighborsPos = get_neighbors(graph, graph_nodes, currentNode.node_id)
+      currentNeighborsPos = get_neighbors(graph, graph_nodes, currentNode.node_id)
 
-        #neighborPos is pos tuple (lon, lat)
-        for neighborPos in currentNeighborsPos:
-          neighborID = get_nodeId_from_pos(neighborPos, graph_node_pos_dict)
+      #neighborPos is pos tuple (lon, lat)
+      for neighborPos in currentNeighborsPos:
+        neighborID = get_nodeId_from_pos(neighborPos, graph_node_pos_dict)
 
-          if any(node.node_id == neighborID for node in closedSet):
-            continue
+        if any(node.node_id == neighborID for node in closedSet):
+          continue
 
-          #calc_dist in this case is being used to calculate the distance between the currentnode and the neighbor node
-          tentative_g = currentNode.g + calc_dist(currentNode.pos[0], currentNode.pos[1], neighborPos[0], neighborPos[1])
+        #calc_dist in this case is being used to calculate the distance between the currentnode and the neighbor node
+        tentative_g = currentNode.g + calc_dist(currentNode.pos[0], currentNode.pos[1], neighborPos[0], neighborPos[1])
 
-          if all(node.pos != neighborPos for node in openHeapQ):
-            neighbor_h = calc_dist(neighborPos[0], neighborPos[1], goal[0], goal[1])
-            neighborNode = Node(tentative_g, neighbor_h, calc_f(tentative_g, neighbor_h), currentNode, neighborPos, neighborID)
+        if all(node.pos != neighborPos for node in openHeapQ):
+          neighbor_h = calc_dist(neighborPos[0], neighborPos[1], goal[0], goal[1])
+          neighborNode = Node(tentative_g, neighbor_h, calc_f(tentative_g, neighbor_h), currentNode, neighborPos, neighborID)
 
-            heapq.heappush(openHeapQ, neighborNode)
-            openDict.update({neighborID: neighborNode})
+          heapq.heappush(openHeapQ, neighborNode)
+          openDict.update({neighborID: neighborNode})
 
-          #if the g from the start of the current path to the neighbor node 
-          #is less than an existing path to the neighbor node,
-          #its better,
-          #so update the information about the neighbor node's old path => new path information
-          elif tentative_g < openDict.get(neighborID).g:
-            neighborNode = openDict[neighborID]
-            neighborNode.g = tentative_g
-            neighborNode.h = calc_dist(neighborPos[0], neighborPos[1], goal[0], goal[1])
-            neighborNode.f = calc_f(neighborNode.g, neighborNode.h)
-            neighborNode.parent = currentNode
+        #if the g from the start of the current path to the neighbor node 
+        #is less than an existing path to the neighbor node,
+        #its better,
+        #so update the information about the neighbor node's old path => new path information
+        elif tentative_g < openDict.get(neighborID).g:
+          neighborNode = openDict[neighborID]
+          neighborNode.g = tentative_g
+          neighborNode.h = calc_dist(neighborPos[0], neighborPos[1], goal[0], goal[1])
+          neighborNode.f = calc_f(neighborNode.g, neighborNode.h)
+          neighborNode.parent = currentNode
 
     return None #Literally no path is possible
         
+# import networkx as nx
 
-# result = a_star((-76.9339843, 38.9875604), (-76.9348411, 38.9862069), graph)
+# #GraphML format can be achieved easiest from osmnx. Do NOT use osmnx in production. The library is way too big
+# graph = nx.read_graphml("./umd_campus.graphml")
+# graph_nodes = graph.nodes
+
+# #Dict that maps the (lon, lat) of a node to it's node id
+# graph_node_pos_dict = {(float(graph_nodes[node]["x"]), float(graph_nodes[node]["y"])): node for node in graph_nodes}
+
+# result = a_star((-76.9339843, 38.9875604), (-76.9348411, 38.9862069), graph, graph_nodes, graph_node_pos_dict)
 
 # print(result)
