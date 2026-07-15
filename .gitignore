@@ -30,6 +30,7 @@ backend/.env.*
 # PATHFINDING RULES (Flask / Python)
 # ==============================================================================
 pathfinding-service/.venv
+pathfinding-service/__pycache__
 
 # ==============================================================================
 # GLOBAL / EDITOR RULES
