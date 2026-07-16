@@ -1,15 +1,19 @@
 import React from "react";
+import { useMap } from "react-leaflet";
 import "../styles/tailwindauto.css";
-import { useAutoFill, useEndCoords, useEndQuery, useStartCoords, useStartQuery } from "../hooks/search-hook";
+import { useAutoFill, useEndCoords, useEndQuery, useStartCoords, useStartQuery } from "../hooks/search-hook.js";
+import { useRouteButton } from "../hooks/route-hook.js";
 
-const SearchBox = () => {
+const SearchBox = ({ startCoords, endCoords, routeButton }) => {
+	const map = useMap();
+
 	const startQuery = useStartQuery();
 	const endQuery = useEndQuery();
 	const startResults = useAutoFill(startQuery.query);
 	const endResults = useAutoFill(endQuery.query);
 
-	const startCoords = useStartCoords();
-	const endCoords = useEndCoords();
+	// const startCoords = useStartCoords();
+	// const endCoords = useEndCoords();
 
 	return (
 		<div
@@ -38,7 +42,7 @@ const SearchBox = () => {
 								onClick={() => {
 									startQuery.setQuery(result.display_name);
 									startResults.setResults([]);
-									startCoords.setResults([result.lon, result.lat]);
+									startCoords.setCoords([result.lon, result.lat]);
 								}}
 								className="bg-white hover:bg-[#F7F7F7] w-full rounded-lg px-2 py-2 my-1 text-[10px] md:text-[11px] lg:text-[12px] z-[1000]"
 							>
@@ -56,7 +60,7 @@ const SearchBox = () => {
 						value={endQuery.query}
 						onChange={(e) => {
 							endQuery.setQuery(e.target.value);
-							endQuery.setCoords([]);
+							endCoords.setCoords([]);
 						}}
 					/>
 
@@ -67,7 +71,7 @@ const SearchBox = () => {
 								onClick={() => {
 									endQuery.setQuery(result.display_name);
 									endResults.setResults([]);
-									endCoords.setResults([result.lon, result.lat]);
+									endCoords.setCoords([result.lon, result.lat]);
 								}}
 								className="bg-white hover:bg-[#F7F7F7] w-full rounded-lg px-2 py-2 my-1 text-[10px] md:text-[11px] lg:text-[12px] z-[1000]"
 							>
@@ -83,12 +87,7 @@ const SearchBox = () => {
 							{
 								startCoords.coords && 
 								endCoords.coords && 
-								await fetch(
-									"http://localhost:8000/api/astar",
-									{
-										method: "POST"
-									}
-								)
+								routeButton.getRoute(startCoords.coords, endCoords.coords)
 							}
 						}}
 					>

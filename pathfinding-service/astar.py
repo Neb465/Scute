@@ -188,7 +188,7 @@ def reconstruct_path(current_node: Node):
     while not current_node == None:
         path.append(current_node.pos)
         current_node = current_node.parent
-    path.sort()
+    path.reverse()
 
     return path
 
@@ -241,6 +241,36 @@ def get_neighbors(graph, graph_nodes, node_id: str):
 
     return neighbors_pos
 
+# This function is required because inputted positions from the frontend 
+# might not be exact with the positions in the backend
+# 
+def find_nearest_node(pos: tuple[float, float], graph_node_pos_dict: dict):
+  """Find the id of the graph node nearest to the a given (lon, lat) position.
+
+  Args:
+    pos (tuple[float, float]): The (Longitude, Latitude) position to search from.
+    graph_node_pos_dict (dict): A dictionary with (Longitude, Latitude) as the key.
+
+  Returns:
+    str: The nearest node's id.
+  
+  """
+
+  nearest_id = ""
+  nearest_pos = ()
+  nearest_dist = float("inf")
+
+  for (node_lon, node_lat), node_id in graph_node_pos_dict.items():
+    dist = calc_dist(pos[0], pos[1], node_lon, node_lat)
+    if dist < nearest_dist:
+      nearest_dist = dist
+      nearest_id = node_id
+      nearest_pos = (node_lon, node_lat)
+
+  return (nearest_id, nearest_pos)
+
+
+
 #Request from js can only use lists, not tuples. So, start and goal must be lists, not tuples.
 def a_star(start: list[float, float], goal: list[float, float], graph, graph_nodes, graph_node_pos_dict):
     """Function to run the main A* algorithm.
@@ -258,21 +288,23 @@ def a_star(start: list[float, float], goal: list[float, float], graph, graph_nod
     start = tuple(start)
     goal = tuple(goal)
 
-    startNodeID = get_nodeId_from_pos(start, graph_node_pos_dict)
-    startNode = Node(0, calc_dist(start[0], start[1], goal[0], goal[1]), calc_dist(start[0], start[1], goal[0], goal[1]), None, start, startNodeID)
+    startNodeInfo = find_nearest_node(start, graph_node_pos_dict)
+    goalNodeInfo = find_nearest_node(goal, graph_node_pos_dict)
+
+    startNode = Node(0, calc_dist(startNodeInfo[1][0], startNodeInfo[1][1], goalNodeInfo[1][0], goalNodeInfo[1][1]), calc_dist(startNodeInfo[1][0], startNodeInfo[1][1], goalNodeInfo[1][0], goalNodeInfo[1][1]), None, startNodeInfo[1], startNodeInfo[0])
     
     #id of each node
     openHeapQ = [startNode]
 
     #id as key, Node as value
-    openDict = {startNodeID: startNode} 
+    openDict = {startNodeInfo[0]: startNode} 
     closedSet = set()
 
     while len(openHeapQ) > 0:
       currentNode = heapq.heappop(openHeapQ)
       openDict.pop(currentNode.node_id)
 
-      if (currentNode.pos == goal):
+      if (currentNode.pos == goalNodeInfo[1]):
         return reconstruct_path(currentNode)
       
       closedSet.add(currentNode)
@@ -290,7 +322,7 @@ def a_star(start: list[float, float], goal: list[float, float], graph, graph_nod
         tentative_g = currentNode.g + calc_dist(currentNode.pos[0], currentNode.pos[1], neighborPos[0], neighborPos[1])
 
         if all(node.pos != neighborPos for node in openHeapQ):
-          neighbor_h = calc_dist(neighborPos[0], neighborPos[1], goal[0], goal[1])
+          neighbor_h = calc_dist(neighborPos[0], neighborPos[1], goalNodeInfo[1][0], goalNodeInfo[1][1])
           neighborNode = Node(tentative_g, neighbor_h, calc_f(tentative_g, neighbor_h), currentNode, neighborPos, neighborID)
 
           heapq.heappush(openHeapQ, neighborNode)
@@ -303,7 +335,7 @@ def a_star(start: list[float, float], goal: list[float, float], graph, graph_nod
         elif tentative_g < openDict.get(neighborID).g:
           neighborNode = openDict[neighborID]
           neighborNode.g = tentative_g
-          neighborNode.h = calc_dist(neighborPos[0], neighborPos[1], goal[0], goal[1])
+          neighborNode.h = calc_dist(neighborPos[0], neighborPos[1], goalNodeInfo[1][0], goalNodeInfo[1][1])
           neighborNode.f = calc_f(neighborNode.g, neighborNode.h)
           neighborNode.parent = currentNode
 

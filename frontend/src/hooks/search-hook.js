@@ -27,8 +27,6 @@ export const useAutoFill = (query) => {
 		const timeout = setTimeout(async () => {
 			const data = await renderAutoFill(query);
 
-			console.log(data);
-
 			setResults(data);
 		}, 500);
 

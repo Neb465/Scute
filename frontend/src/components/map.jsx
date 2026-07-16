@@ -2,15 +2,24 @@ import {
 	MapContainer,
 	TileLayer,
 	Marker,
-	useMap,
 	Popup,
 	ZoomControl,
+	Polyline
 } from "react-leaflet";
 import "../styles/tailwindauto.css";
 import SearchBox from "./searchBox.jsx";
 import Profile from "./profile.jsx";
 
+import { useStartCoords, useEndCoords } from "../hooks/search-hook.js"
+import { useRouteButton } from "../hooks/route-hook.js";
+
 function Map() {
+	const startCoords = useStartCoords();
+	const endCoords = useEndCoords();
+	const routeButton = useRouteButton();
+
+	const positions = routeButton.route.map(([lon, lat]) => [lat, lon]);
+
 	return (
 		<div className="h-screen w-screen relative">
 			<MapContainer
@@ -35,9 +44,17 @@ function Map() {
 				/>
 
 				<div className="flex flex-row justify-between">
-					<SearchBox />
+					<SearchBox 
+						startCoords={startCoords}
+						endCoords={endCoords}
+						routeButton={routeButton}
+					/>
 					<Profile />
 				</div>
+
+				{positions.length > 0 && (
+					<Polyline positions={positions} pathOptions={{ color: "blue" }}/>
+				)}
 
 				<Marker position={[51.505, -0.09]}>
 					<Popup>

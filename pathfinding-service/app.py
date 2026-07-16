@@ -17,6 +17,10 @@ def calc_path():
   start = data.get("start")
   goal = data.get("goal")
 
+  #Likely unneeded as this is already covered in the frontend
+  start = [float(start[0]), float(start[1])]
+  goal = [float(goal[0]), float(goal[1])]
+
   if start is None or goal is None:
     return jsonify({"msg": "Start and goal are required"}), 400
   
