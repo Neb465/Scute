@@ -13,7 +13,6 @@ export const useSearch = () => {
 		const value = e.target.value;
 		setQuery(value);
 		setCoords([]);
-		//setSelected(true);
 
 		if (searchTimeout.current) {
 			clearTimeout(searchTimeout.current);
@@ -31,9 +30,6 @@ export const useSearch = () => {
 	}
 
 	const handleAutoFillButton = (result) => {
-		// if (searchTimeout.current) {
-		// 	clearTimeout(searchTimeout.current);
-		// }
 		setQuery(result.display_name);
 		setCoords([parseFloat(result.lon), parseFloat(result.lat)]); 
 		setResults([]); 

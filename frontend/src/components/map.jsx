@@ -8,12 +8,12 @@ import {
 } from "react-leaflet";
 import SearchBox from "./search-box.jsx";
 import Profile from "./profile.jsx";
-import { useRouteButton } from "../hooks/route-hook.js";
+import { useRoute } from "../hooks/route-hook.js";
 import { useSearch } from "../hooks/search-hook.js";
 import PathInfo from "./path-info.jsx";
 
 function Map() {
-	const routeButton = useRouteButton();
+	const routeButton = useRoute();
 	const startSearch = useSearch();
 	const endSearch = useSearch();
 
@@ -63,12 +63,11 @@ function Map() {
 						<Marker position={positions[positions.length - 1]}>
 							<Popup>Goal</Popup>
 						</Marker>
+
+						<PathInfo routeButton={routeButton} startSearch={startSearch} endSearch={endSearch}/>
 					</>
 				)}
 
-				<PathInfo routeButton={routeButton} startSearch={startSearch} endSearch={endSearch}/>
-
-				<ZoomControl position="bottomright" />
 			</MapContainer>
 		</div>
 	);

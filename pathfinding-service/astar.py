@@ -185,12 +185,17 @@ def reconstruct_path(current_node: Node):
     
     """
     path = []
-    while not current_node == None:
+    dist = 0
+    while current_node is not None:
         path.append(current_node.pos)
         current_node = current_node.parent
+
+    for i in range(len(path) - 1):
+      dist += calc_dist(path[i][0], path[i][1], path[i+1][0], path[i+1][1])
+
     path.reverse()
 
-    return path
+    return [path, dist]
 
 def get_pos_from_nodeID(node_id: str, graph_nodes):
     """Get a node's position based on it's node id.
