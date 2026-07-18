@@ -1,49 +1,72 @@
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { renderAutoFill } from "../api/search-api";
 
-export const useStartQuery = () => {
+export const useSearch = () => {
 	const [query, setQuery] = useState("");
-
-	return { query, setQuery };
-}
-
-export const useEndQuery = () => {
-	const [query, setQuery] = useState("");
-
-	return { query, setQuery };
-}
-
-export const useAutoFill = (query) => {
 	const [results, setResults] = useState([]);
+	const [coords, setCoords] = useState([]);
+	const [selected, setSelected] = useState(false);
+	const [finalQuery, setFinalQuery] = useState("");
+	const searchTimeout = useRef(null);
 
-	useEffect(() => {
-		//If input is less than 3 characters, don't let autofill
-		if (query.length < 3) {
+	const handleInputChange = (e) => {
+		const value = e.target.value;
+		setQuery(value);
+		setCoords([]);
+		//setSelected(true);
+
+		if (searchTimeout.current) {
+			clearTimeout(searchTimeout.current);
+		}
+
+		if (value.length < 3) {
 			setResults([]);
 			return;
 		}
 
-		// delay inbetween requests to prevent 429 errors
-		const timeout = setTimeout(async () => {
-			const data = await renderAutoFill(query);
-
+		searchTimeout.current = setTimeout(async () => {
+			const data = await renderAutoFill(value);
 			setResults(data);
 		}, 500);
+	}
 
-		return () => clearTimeout(timeout);
-	}, [query]);
+	const handleAutoFillButton = (result) => {
+		// if (searchTimeout.current) {
+		// 	clearTimeout(searchTimeout.current);
+		// }
+		setQuery(result.display_name);
+		setCoords([parseFloat(result.lon), parseFloat(result.lat)]); 
+		setResults([]); 
+	}
 
-	return { results, setResults };
-}
+	const handleSelect = (bool) => {
+		setSelected(bool);
+	}
 
-export const useStartCoords = () => {
-	const [coords, setCoords] = useState([])
+	const handleFinalQuery = () => {
+		setFinalQuery(query);
+	}
 
-	return { coords, setCoords }
-}
+	return {
+		finalQuery, query, results, coords, selected, handleAutoFillButton, handleInputChange, handleSelect, handleFinalQuery
+	}
 
-export const useEndCoords = () => {
-	const [coords, setCoords] = useState([])
+	// useEffect(() => {
+	// 	//If input is less than 3 characters, don't let autofill
+	// 	if (query.length < 3) {
+	// 		setResults([]);
+	// 		return;
+	// 	}
 
-	return { coords, setCoords }
+	// 	// delay inbetween requests to prevent 429 errors
+	// 	const timeout = setTimeout(async () => {
+	// 		const data = await renderAutoFill(query);
+
+	// 		setResults(data);
+	// 	}, 500);
+
+	// 	return () => clearTimeout(timeout);
+	// }, [query]);
+
+	// return { results, setResults };
 }

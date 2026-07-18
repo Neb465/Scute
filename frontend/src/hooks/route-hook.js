@@ -3,12 +3,19 @@ import { fetchRoute } from "../api/route-api.js";
 
 export const useRouteButton = () => {
 	const [route, setRoute] = useState([]);
+	const [error, setError] = useState(null);
 
-  const getRoute = async (start, goal) => {
-    const data = await fetchRoute(start, goal);
+	const getRoute = async (start, goal) => {
+		try {
+			const data = await fetchRoute(start, goal);
 
-    setRoute(data);
-  }
+			setRoute(data);
+      setError(null);
+		} catch (e) {
+			setRoute([]);
+			setError(e.message);
+		}
+	};
 
-	return { route, getRoute };
-}
+	return { route, error, setRoute, getRoute};
+};

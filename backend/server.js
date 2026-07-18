@@ -3,7 +3,6 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-import mapAPI from "./src/routes/mapAPI.js";
 import user from "./src/routes/user.js";
 import auth from "./src/routes/auth.js";
 import geocode from "./src/routes/geocode.js";
@@ -22,7 +21,6 @@ app.use(cookieParser());
 app.use(cors()); //change later to only allow frontend to make requests
 
 //Routes
-app.use("/api/maps", mapAPI);
 app.use("/api/users", limiter, user);
 app.use("/api/auth", limiter, auth);
 app.use("/api/geocode", geocode);

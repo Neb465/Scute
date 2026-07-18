@@ -1,6 +1,6 @@
 export const fetchRoute = async (start, goal) => {
-  const startFloat = [parseFloat(start[0]), parseFloat(start[1])];
-  const goalFloat = [parseFloat(goal[0]), parseFloat(goal[1])];
+  // const startFloat = [parseFloat(start[0]), parseFloat(start[1])];
+  // const goalFloat = [parseFloat(goal[0]), parseFloat(goal[1])];
 
   const response = await fetch(
     "http://localhost:8000/api/astar",
@@ -8,16 +8,19 @@ export const fetchRoute = async (start, goal) => {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
-        start: startFloat,
-        goal: goalFloat
+        start: start,
+        goal: goal
       })
     }
   )
 
+  //console.log(response);
+    
   const data = await response.json();
+  // const body = await response.text();
 
   if (!response.ok) {
-    throw new Error(data.msg || "Failed to fetch route");
+    throw new Error(data.message || "Failed to fetch route");
   }
 
   // console.log(start);

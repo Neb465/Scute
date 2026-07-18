@@ -13,7 +13,18 @@ const update_pass_field = Joi.string()
 		"string.min": "Password must be at least 8 characters long.",
 		"string.max": "Password cannot be longer than 128 characters long.",
 		"any.required": "Password is a required field.",
-	});
+	}
+);
+
+const search_field = Joi.array()
+	.min(1)
+	.required()
+	.messages({
+		"array.base": "Search query not processed properly",
+		"array.min": "Search query must not be blank",
+		"any.required": "Search query is required"
+	}
+);
 
 export const loginSchema = Joi.object({
 	email: email_field,
@@ -42,4 +53,9 @@ export const forgotPassSchema = Joi.object({
 
 export const resetPassSchema = Joi.object({
 	password: update_pass_field
+})
+
+export const searchSchema = Joi.object({
+	start: search_field,
+	goal: search_field
 })

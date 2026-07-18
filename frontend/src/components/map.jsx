@@ -4,21 +4,22 @@ import {
 	Marker,
 	Popup,
 	ZoomControl,
-	Polyline
+	Polyline,
 } from "react-leaflet";
-import "../styles/tailwindauto.css";
-import SearchBox from "./searchBox.jsx";
+import SearchBox from "./search-box.jsx";
 import Profile from "./profile.jsx";
-
-import { useStartCoords, useEndCoords } from "../hooks/search-hook.js"
 import { useRouteButton } from "../hooks/route-hook.js";
+import { useSearch } from "../hooks/search-hook.js";
+import PathInfo from "./path-info.jsx";
 
 function Map() {
-	const startCoords = useStartCoords();
-	const endCoords = useEndCoords();
 	const routeButton = useRouteButton();
+	const startSearch = useSearch();
+	const endSearch = useSearch();
 
-	const positions = routeButton.route.map(([lon, lat]) => [lat, lon]);
+	const positions = routeButton.route
+		? routeButton.route.map(([lon, lat]) => [lat, lon])
+		: [];
 
 	return (
 		<div className="h-screen w-screen relative">
@@ -44,23 +45,28 @@ function Map() {
 				/>
 
 				<div className="flex flex-row justify-between">
-					<SearchBox 
-						startCoords={startCoords}
-						endCoords={endCoords}
-						routeButton={routeButton}
-					/>
+					<SearchBox routeButton={routeButton} startSearch={startSearch} endSearch={endSearch}/>
 					<Profile />
 				</div>
 
 				{positions.length > 0 && (
-					<Polyline positions={positions} pathOptions={{ color: "blue" }}/>
+					<>
+						<Polyline
+							positions={positions}
+							pathOptions={{ color: "blue", weight: "7" }}
+						/>
+
+						<Marker position={positions[0]}>
+							<Popup>Start</Popup>
+						</Marker>
+
+						<Marker position={positions[positions.length - 1]}>
+							<Popup>Goal</Popup>
+						</Marker>
+					</>
 				)}
 
-				<Marker position={[51.505, -0.09]}>
-					<Popup>
-						A pretty CSS3 popup. <br /> Easily customizable.
-					</Popup>
-				</Marker>
+				<PathInfo routeButton={routeButton} startSearch={startSearch} endSearch={endSearch}/>
 
 				<ZoomControl position="bottomright" />
 			</MapContainer>

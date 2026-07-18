@@ -1,5 +1,4 @@
 import React from "react";
-import "../styles/tailwindauto.css";
 import { useButton } from "../hooks/profile-hook";
 
 const Profile = () => {
@@ -7,7 +6,7 @@ const Profile = () => {
 
 	return (
 		<div
-			className="relative flex flex-col items-end mx-5 my-5  z-[1000]"
+			className="relative flex flex-col items-end mx-5 my-5  z-1000"
 			style={{ fontFamily: "'Google Sans', 'Roboto', sans-serif" }}
 		>
 			<button

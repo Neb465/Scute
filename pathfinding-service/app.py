@@ -14,15 +14,15 @@ graph_node_pos_dict = {(float(graph_nodes[node]["x"]), float(graph_nodes[node]["
 @app.route('/astar', methods=["POST"])
 def calc_path():
   data = request.get_json()
+  #Floats
   start = data.get("start")
   goal = data.get("goal")
 
-  #Likely unneeded as this is already covered in the frontend
   start = [float(start[0]), float(start[1])]
   goal = [float(goal[0]), float(goal[1])]
 
-  if start is None or goal is None:
-    return jsonify({"msg": "Start and goal are required"}), 400
+  # if start is None or goal is None:
+  #   return jsonify({"msg": "Start and goal are required"}), 400
   
   path = a_star(start, goal, graph, graph_nodes, graph_node_pos_dict)
 
