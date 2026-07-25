@@ -1,7 +1,8 @@
 import { useState } from "react";
 
-export function useButton() {
-  const [toggle, setToggle] = useState(false)
+export function useProfile() {
+  const [toggle, setToggle] = useState(false);
+  const [createAcc, setCreateAcc] = useState(false);
 
-  return {toggle, setToggle}
+  return {toggle, createAcc, setToggle, setCreateAcc};
 }

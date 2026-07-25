@@ -1,68 +1,53 @@
-import { useState, useRef } from "react";
-import { renderAutoFill } from "../api/search-api";
+import { useState } from "react";
 
-export const useSearch = () => {
-	const [query, setQuery] = useState("");
-	const [results, setResults] = useState([]);
-	const [coords, setCoords] = useState([]);
+
+export const useSearchHook = () => {
 	const [selected, setSelected] = useState(false);
-	const [finalQuery, setFinalQuery] = useState("");
-	const searchTimeout = useRef(null);
 
-	const handleInputChange = (e) => {
-		const value = e.target.value;
-		setQuery(value);
-		setCoords([]);
+	return {selected, setSelected}
+	
+	// const [query, setQuery] = useState("");
+	// const [results, setResults] = useState([]);
+	// const [coords, setCoords] = useState([]);
+	// const [selected, setSelected] = useState(false);
+	// const [finalQuery, setFinalQuery] = useState("");
+	// const searchTimeout = useRef(null);
 
-		if (searchTimeout.current) {
-			clearTimeout(searchTimeout.current);
-		}
+	// const handleInputChange = (e) => {
+	// 	const value = e.target.value;
+	// 	setQuery(value);
+	// 	setCoords([]);
 
-		if (value.length < 3) {
-			setResults([]);
-			return;
-		}
+	// 	if (searchTimeout.current) {
+	// 		clearTimeout(searchTimeout.current);
+	// 	}
 
-		searchTimeout.current = setTimeout(async () => {
-			const data = await renderAutoFill(value);
-			setResults(data);
-		}, 500);
-	}
-
-	const handleAutoFillButton = (result) => {
-		setQuery(result.display_name);
-		setCoords([parseFloat(result.lon), parseFloat(result.lat)]); 
-		setResults([]); 
-	}
-
-	const handleSelect = (bool) => {
-		setSelected(bool);
-	}
-
-	const handleFinalQuery = () => {
-		setFinalQuery(query);
-	}
-
-	return {
-		finalQuery, query, results, coords, selected, handleAutoFillButton, handleInputChange, handleSelect, handleFinalQuery
-	}
-
-	// useEffect(() => {
-	// 	//If input is less than 3 characters, don't let autofill
-	// 	if (query.length < 3) {
+	// 	if (value.length < 3) {
 	// 		setResults([]);
 	// 		return;
 	// 	}
 
-	// 	// delay inbetween requests to prevent 429 errors
-	// 	const timeout = setTimeout(async () => {
-	// 		const data = await renderAutoFill(query);
-
+	// 	searchTimeout.current = setTimeout(async () => {
+	// 		const data = await renderAutoFill(value);
 	// 		setResults(data);
 	// 	}, 500);
+	// }
 
-	// 	return () => clearTimeout(timeout);
-	// }, [query]);
+	// const handleAutoFillButton = (result) => {
+	// 	setQuery(result.display_name);
+	// 	setCoords([parseFloat(result.lon), parseFloat(result.lat)]); 
+	// 	setResults([]); 
+	// }
 
-	// return { results, setResults };
+	// const handleSelect = (bool) => {
+	// 	setSelected(bool);
+	// }
+
+	// const handleFinalQuery = () => {
+	// 	setFinalQuery(query);
+	// }
+
+	// return {
+	// 	finalQuery, query, results, coords, selected, handleAutoFillButton, handleInputChange, handleSelect, handleFinalQuery
+	// }
 }

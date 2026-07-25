@@ -1,24 +1,17 @@
 import { useState } from "react";
-import { fetchRoute } from "../api/route-api.js";
+import { useRouteMutation } from "../api/route-api.js";
 
 export const useRoute = () => {
-	const [route, setRoute] = useState([]);
-	const [dist, setDist] = useState(0);
-	const [error, setError] = useState(null);
+	const { mutate, data, isPending, error } = useRouteMutation();
 
-	const getRoute = async (start, goal) => {
-		try {
-			const data = await fetchRoute(start, goal);
+	const route = data ? data[0] : [];
+	const dist = data ? data[1] : 0;
 
-			setDist(data[1]);
-			setRoute(data[0]);
-      setError(null);
-		} catch (e) {
-			setRoute([]);
-			setDist(0);
-			setError(e.message);
-		}
+	return { 
+		route, 
+		dist,
+		error: error ? error.message : "",
+		isPending,
+		getRoute: (start, goal) => mutate({ start, goal })
 	};
-
-	return { dist, route, error, getRoute};
 };

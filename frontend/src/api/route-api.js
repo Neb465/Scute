@@ -1,4 +1,6 @@
-export const fetchRoute = async (start, goal) => {
+import { useMutation, QueryClient } from "@tanstack/react-query";
+
+const fetchRoute = async ({ start, goal }) => {
   // const startFloat = [parseFloat(start[0]), parseFloat(start[1])];
   // const goalFloat = [parseFloat(goal[0]), parseFloat(goal[1])];
 
@@ -27,3 +29,9 @@ export const fetchRoute = async (start, goal) => {
   // console.log(goal);
   return data.path;
 } 
+
+export const useRouteMutation = () => {
+  return useMutation({
+    mutationFn: fetchRoute
+  })
+}

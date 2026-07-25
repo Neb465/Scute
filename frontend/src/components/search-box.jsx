@@ -1,9 +1,27 @@
 import React from "react";
-import { useMap } from "react-leaflet";
+import { useSearchQuery } from "../api/search-api.js";
+import { useSearchHook } from "../hooks/search-hook.js";
+import { useMapStore } from "../stores/useMapStore.js";
 
+const SearchBox = ({ getRoute, isError, error }) => {
+	// local states
+	const startHook = useSearchHook();
+	const endHook = useSearchHook();
 
-const SearchBox = ({ routeButton, startSearch, endSearch }) => {
-	const map = useMap();
+	// global/zustand/tanstack-query states
+	const startQuery = useMapStore((state) => state["start"].query);
+	const startCoords = useMapStore((state) => state["start"].coords);
+	const startSearch = useSearchQuery("start");
+	const startAutoFillResults = startSearch.data || [];
+
+	const endQuery = useMapStore((state) => state["end"].query);
+	const endCoords = useMapStore((state) => state["end"].coords);
+	const endSearch = useSearchQuery("end");
+	const endAutoFillResults = endSearch.data || [];
+
+	const handleInputChange = useMapStore((state) => state.handleInputChange);
+	const handleAutoFillButton = useMapStore((state) => state.handleAutoFillButton);
+	const handleFinalQuery = useMapStore((state) => state.handleFinalQuery);
 
 	return (
 		<div className="flex flex-col h-full w-45 md:w-60 lg:w-75 mx-6 my-4">
@@ -19,11 +37,11 @@ const SearchBox = ({ routeButton, startSearch, endSearch }) => {
 							placeholder="Choose starting point"
 							className="bg-transparent outline-none w-full text-[#202124] placeholder-[#9aa0a6] text-[12px] md:text-[13px] lg:text-[14px]"
 							style={{ fontFamily: "inherit" }}
-							value={startSearch.query}
-							onChange={startSearch.handleInputChange}
-							onFocus={() => startSearch.handleSelect(true)}
+							value={startQuery}
+							onChange={(e) => handleInputChange("start", e.target.value)}
+							onFocus={() => startHook.setSelected(true)}
 							onBlur={() => {
-								startSearch.handleSelect(false);
+								startHook.setSelected(false);
 							}}
 						/>
 					</div>
@@ -34,16 +52,17 @@ const SearchBox = ({ routeButton, startSearch, endSearch }) => {
 							placeholder="Choose ending point"
 							className="bg-transparent outline-none w-full text-[#202124] placeholder-[#9aa0a6] text-[12px] md:text-[13px] lg:text-[14px]"
 							style={{ fontFamily: "inherit" }}
-							value={endSearch.query}
-							onChange={endSearch.handleInputChange}
-							onFocus={() => endSearch.handleSelect(true)}
-							onBlur={() => endSearch.handleSelect(false)}
+							value={endQuery}
+							onChange={(e) => handleInputChange("end", e.target.value)}
+							onFocus={() => endHook.setSelected(true)}
+							onBlur={() => endHook.setSelected(false)}
 						/>
 					</div>
-
-					{routeButton.error && (
+					
+					{/* This is broken. Unsure whether you can put isError as a conditional here */}
+					{isError && (
 						<p className="text-red-800 mt-1 text-[9px] md:text-[11px] lg:text-[13px]">
-							{routeButton.error}
+							{error}
 						</p>
 					)}
 
@@ -51,10 +70,10 @@ const SearchBox = ({ routeButton, startSearch, endSearch }) => {
 						<button
 							className="w-full rounded-xl py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
 							onClick={async () => {
-								if(startSearch.coords && endSearch.coords) {
-									await routeButton.getRoute(startSearch.coords, endSearch.coords);
-									startSearch.handleFinalQuery();
-									endSearch.handleFinalQuery();
+								if(startCoords && endCoords) {
+									getRoute(startCoords, endCoords);
+									handleFinalQuery("start", startQuery);
+									handleFinalQuery("end", endQuery);
 								}
 							}}
 						>
@@ -62,15 +81,16 @@ const SearchBox = ({ routeButton, startSearch, endSearch }) => {
 						</button>
 					</div>
 				</div>
-
-				{startSearch.selected &&
-					startSearch.results.length > 0 &&
-					startSearch.results.map((result) => (
+						
+				{/* Figure out startSearch.selected */}
+				{startHook.selected &&
+					startAutoFillResults.length > 0 &&
+					startAutoFillResults.map((result) => (
 						<button
 							key={result.display_name}
 							onMouseDownCapture={(e) => {
 								e.preventDefault();
-								startSearch.handleAutoFillButton(result);
+								handleAutoFillButton("start", result);
 							}}
 							className="bg-white hover:bg-[#F7F7F7] w-full rounded-lg px-2 py-2 my-1 text-[10px] md:text-[11px] lg:text-[12px] z-1000"
 						>
@@ -78,14 +98,14 @@ const SearchBox = ({ routeButton, startSearch, endSearch }) => {
 						</button>
 					))}
 
-				{endSearch.selected &&
-					endSearch.results.length > 0 &&
-					endSearch.results.map((result) => (
+				{endHook.selected &&
+					endAutoFillResults.length > 0 &&
+					endAutoFillResults.map((result) => (
 						<button
 							key={result.display_name}
 							onMouseDownCapture={(e) => {
 								e.preventDefault();
-								endSearch.handleAutoFillButton(result);
+								handleAutoFillButton("end", result);
 							}}
 							className="bg-white hover:bg-[#F7F7F7] w-full rounded-lg px-2 py-2 my-1 text-[10px] md:text-[11px] lg:text-[12px] z-1000"
 						>

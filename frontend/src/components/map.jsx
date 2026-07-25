@@ -9,13 +9,13 @@ import {
 import SearchBox from "./search-box.jsx";
 import Profile from "./profile.jsx";
 import { useRoute } from "../hooks/route-hook.js";
-import { useSearch } from "../hooks/search-hook.js";
+import { useProfile } from "../hooks/profile-hook.js";
 import PathInfo from "./path-info.jsx";
+import CreateAccountBox from "./create-account.jsx";
 
 function Map() {
 	const routeButton = useRoute();
-	const startSearch = useSearch();
-	const endSearch = useSearch();
+	//const profile = useProfile();
 
 	const positions = routeButton.route
 		? routeButton.route.map(([lon, lat]) => [lat, lon])
@@ -36,7 +36,7 @@ function Map() {
 				minZoom={15}
 				scrollWheelZoom={true}
 				zoomControl={false}
-				className="h-full w-full"
+				className="h-full w-full z-0"
 			>
 				<TileLayer
 					attribution="Made with 1000 tears"
@@ -45,9 +45,11 @@ function Map() {
 				/>
 
 				<div className="flex flex-row justify-between">
-					<SearchBox routeButton={routeButton} startSearch={startSearch} endSearch={endSearch}/>
-					<Profile />
+					<SearchBox getRoute={routeButton.getRoute} isError={routeButton.isError} error={routeButton.error}/>
+					{/* <Profile profile={profile}/> */}
 				</div>
+
+				{/* {profile.createAcc && <CreateAccountBox profile={profile}/>} */}
 
 				{positions.length > 0 && (
 					<>
@@ -64,7 +66,7 @@ function Map() {
 							<Popup>Goal</Popup>
 						</Marker>
 
-						<PathInfo routeButton={routeButton} startSearch={startSearch} endSearch={endSearch}/>
+						<PathInfo routeButton={routeButton}/>
 					</>
 				)}
 
