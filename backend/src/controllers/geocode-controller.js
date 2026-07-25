@@ -2,7 +2,7 @@ export const fetchAutoFill = async (req, res, next) => {
   try {
     const query = req.query.q;
     if (!query) {
-      return res.json({msg: "No query"});
+      return res.json({message: "No query"});
     }
 
     const response = await fetch(

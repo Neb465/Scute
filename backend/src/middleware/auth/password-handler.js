@@ -16,13 +16,13 @@ export const validatePassword = async (req, res, next) => {
 		if (!hashedPass) {
 			return res
 				.status(404)
-				.json({ msg: "Hashed password not found in database" });
+				.json({ message: "Hashed password not found in database" });
 		}
 
 		const isPassValid = await bcrypt.compare(password, hashedPass);
 
 		if (!isPassValid) {
-			return res.status(401).json({ msg: "Incorrect password" });
+			return res.status(401).json({ message: "Incorrect password" });
 		}
 
 		next();

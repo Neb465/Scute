@@ -12,7 +12,7 @@ export const getAllUsers = async (req, res, next) => {
 	try {
 		const users = await getAllUsersService();
 		res.status(200).json({
-			msg: "Users fetched successfully",
+			message: "Users fetched successfully",
 			data: users,
 		});
 	} catch (e) {
@@ -25,10 +25,10 @@ export const getUserById = async (req, res, next) => {
 		const user = await getUserByIdService(req.params.id);
 
 		if (!user)
-			return res.status(404).json({ status: 404, msg: "User not found" });
+			return res.status(404).json({ status: 404, message: "User not found" });
 
 		res.status(200).json({
-			msg: "User fetched successfully",
+			message: "User fetched successfully",
 			data: user,
 		});
 	} catch (e) {
@@ -44,11 +44,11 @@ export const updateUser = async (req, res, next) => {
 		const updatedUser = await updateUserAllService(req.params.id, name, email);
 
 		if (!updatedUser) {
-			return res.status(404).json({ msg: "User not found" });
+			return res.status(404).json({ message: "User not found" });
 		}
 
 		res.status(200).json({
-			msg: "User updated successfully",
+			message: "User updated successfully",
 			data: updatedUser,
 		});
 	} catch (e) {
@@ -60,10 +60,10 @@ export const deleteUser = async (req, res, next) => {
 	try {
 		const deletedUser = await deleteUserService(req.params.id);
 
-		if (!deletedUser) return res.status(404).json({ msg: "User not found" });
+		if (!deletedUser) return res.status(404).json({ message: "User not found" });
 
 		res.status(200).json({
-			msg: "User deleted successfully",
+			message: "User deleted successfully",
 			data: deletedUser,
 		});
 	} catch (e) {

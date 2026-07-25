@@ -13,7 +13,7 @@ export const findPath = async (req, res, next) => {
 		const path = await response.json();
 
 		if (!response.ok) {
-			return res.status(response.status).json({ msg: path.msg });
+			return res.status(response.status).json({ message: path.message });
 		}
 
 		return res.status(200).json(path);

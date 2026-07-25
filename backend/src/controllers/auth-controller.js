@@ -27,7 +27,7 @@ export const registerUser = async (req, res, next) => {
 		const registeredUser = await createUserService(name, email, hashedPass);
 
 		res.status(201).json({
-			msg: "User registered successfully",
+			message: "User registered successfully",
 			data: registeredUser,
 		});
 	} catch (e) {
@@ -41,7 +41,7 @@ export const loginUser = async (req, res, next) => {
 		const user = await getUserByEmailService(email);
 
 		if (!user) {
-			return res.status(404).json({ msg: "User not found" });
+			return res.status(404).json({ message: "User not found" });
 		}
 
 		const hashedPass = user.password;
@@ -49,13 +49,13 @@ export const loginUser = async (req, res, next) => {
 		if (!hashedPass) {
 			return res
 				.status(404)
-				.json({ msg: "Hashed password not found in database" });
+				.json({ message: "Hashed password not found in database" });
 		}
 
 		const isPassValid = await bcrypt.compare(password, hashedPass);
 
 		if (!isPassValid) {
-			return res.status(401).json({ msg: "Incorrect password" });
+			return res.status(401).json({ message: "Incorrect password" });
 		}
 
 		const accessSecret = new TextEncoder().encode(
@@ -104,7 +104,7 @@ export const loginUser = async (req, res, next) => {
 		);
 
 		return res.status(200).json({
-			msg: "Logged in successfully",
+			message: "Logged in successfully",
 			data: {
 				id: user.id,
 				name: user.name,
@@ -130,7 +130,7 @@ export const logoutUser = async (req, res, next) => {
 
 		const { payload } = await jwtVerify(refreshToken, refreshSecret);
 
-		if (!payload) return res.status(403).json({ msg: "You little rat." });
+		if (!payload) return res.status(403).json({ message: "You little rat." });
 
 		const userId = payload.id;
 
@@ -138,7 +138,7 @@ export const logoutUser = async (req, res, next) => {
 		res.clearCookie("refreshToken");
 		await deleteRefreshTokenService(userId, hashedToken);
 		return res.status(200).json({
-			msg: "Logged out successfully",
+			message: "Logged out successfully",
 		});
 	} catch (e) {
 		next(e);
@@ -157,7 +157,7 @@ export const refreshUser = async (req, res, next) => {
 		const refreshToken = req.cookies.refreshToken;
 
 		if (!refreshToken) {
-			return res.status(401).json({ msg: "No refresh token" });
+			return res.status(401).json({ message: "No refresh token" });
 		}
 
 		//first part of auth, jwtVerify
@@ -167,7 +167,7 @@ export const refreshUser = async (req, res, next) => {
 
 		const { payload } = await jwtVerify(refreshToken, refreshSecret);
 
-		if (!payload) return res.status(403).json({ msg: "You little rat." });
+		if (!payload) return res.status(403).json({ message: "You little rat." });
 
 		const hashedRefreshToken = await crypto
 			.createHash("sha256")
@@ -178,7 +178,7 @@ export const refreshUser = async (req, res, next) => {
 		const user = await getUserByRefreshTokenService(hashedRefreshToken);
 
 		if (!user) {
-			return res.status(403).json({ msg: "Refresh tokens don't match" });
+			return res.status(403).json({ message: "Refresh tokens don't match" });
 		}
 
 		//check if refresh token expired
@@ -189,7 +189,7 @@ export const refreshUser = async (req, res, next) => {
 
 			res.clearCookie("accessToken");
 			res.clearCookie("refreshToken");
-			return res.status(403).json({ msg: "Refresh token expired" });
+			return res.status(403).json({ message: "Refresh token expired" });
 		}
 
 		const accessSecret = new TextEncoder().encode(
@@ -210,7 +210,7 @@ export const refreshUser = async (req, res, next) => {
 		});
 
 		return res.status(200).json({
-			msg: "Cookie refreshed successfully",
+			message: "Cookie refreshed successfully",
 			data: {
 				id: user.id,
 				name: user.name,
@@ -229,7 +229,7 @@ export const forgotPassword = async (req, res, next) => {
 		const user = await getUserByEmailService(email);
 
 		if (!user) {
-			return res.status(404).json({ msg: "User not found" });
+			return res.status(404).json({ message: "User not found" });
 		}
 
 		const token = crypto.randomBytes(32);
@@ -267,7 +267,7 @@ export const forgotPassword = async (req, res, next) => {
 			`,
 		});
 
-		res.status(200).json({ msg: "Password reset email sent" });
+		res.status(200).json({ message: "Password reset email sent" });
 	} catch (e) {
 		next(e);
 	}
@@ -283,7 +283,7 @@ export const resetPassword = async (req, res, next) => {
 		if (!user) {
 			return res
 				.status(404)
-				.json({ msg: "User password reset request not found in database" });
+				.json({ message: "User password reset request not found in database" });
 		}
 
 		//check if refresh token expired
@@ -292,13 +292,13 @@ export const resetPassword = async (req, res, next) => {
 		if (expired) {
 			await deletePassResetService(user.user_id);
 
-			return res.status(403).json({ msg: "Password reset token expired" });
+			return res.status(403).json({ message: "Password reset token expired" });
 		}
 
 		if (token !== user.token_hash) {
 			return res
 				.status(403)
-				.json({ msg: "Input token and database token don't match" });
+				.json({ message: "Input token and database token don't match" });
 		}
 
 		const saltRounds = 10;
@@ -309,14 +309,14 @@ export const resetPassword = async (req, res, next) => {
 		if (await bcrypt.compare(password, oldHashedPass)) {
 			return res
 				.status(400)
-				.json({ msg: "New password cannot be the same as the old password!" });
+				.json({ message: "New password cannot be the same as the old password!" });
 		}
 
 		const updatedUser = await updateUserPassService(user.user_id, hashedPass);
 
 		await deletePassResetService(user.user_id);
 
-		res.status(200).json({ msg: "User updated successfully" });
+		res.status(200).json({ message: "User updated successfully" });
 	} catch (e) {
 		next(e);
 	}

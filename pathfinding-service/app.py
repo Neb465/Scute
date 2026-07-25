@@ -27,7 +27,7 @@ def calc_path():
   path = a_star(start, goal, graph, graph_nodes, graph_node_pos_dict)
 
   if path is None:
-    return jsonify({"msg": "No path found"}), 404
+    return jsonify({"message": "No path found"}), 404
   
   return jsonify({"path": path})
 

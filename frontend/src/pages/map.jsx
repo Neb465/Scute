@@ -6,16 +6,16 @@ import {
 	ZoomControl,
 	Polyline,
 } from "react-leaflet";
-import SearchBox from "./search-box.jsx";
-import Profile from "./profile.jsx";
+import SearchBox from "../components/search-box.jsx";
+import Profile from "../components/profile.jsx";
 import { useRoute } from "../hooks/route-hook.js";
 import { useProfile } from "../hooks/profile-hook.js";
-import PathInfo from "./path-info.jsx";
-import CreateAccountBox from "./create-account.jsx";
+import PathInfo from "../components/path-info.jsx";
+import CreateAccountBox from "../components/create-account.jsx";
 
 function Map() {
 	const routeButton = useRoute();
-	//const profile = useProfile();
+	const profile = useProfile();
 
 	const positions = routeButton.route
 		? routeButton.route.map(([lon, lat]) => [lat, lon])
@@ -46,10 +46,10 @@ function Map() {
 
 				<div className="flex flex-row justify-between">
 					<SearchBox getRoute={routeButton.getRoute} isError={routeButton.isError} error={routeButton.error}/>
-					{/* <Profile profile={profile}/> */}
+					<Profile profile={profile}/>
 				</div>
 
-				{/* {profile.createAcc && <CreateAccountBox profile={profile}/>} */}
+				{profile.createAcc && <CreateAccountBox profile={profile}/>}
 
 				{positions.length > 0 && (
 					<>
