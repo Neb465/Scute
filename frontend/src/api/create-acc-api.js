@@ -17,6 +17,14 @@ const registerUser = async ({ name, email, password}) => {
   const data = await response.json();
 
   if (!response.ok) {
-		throw new Error(data.message || "Failed to fetch route");
+		throw new Error(data.message || "Create account failed");
 	}
+
+  return data.data;
+}
+
+export const useRegisterUserMutation = () => {
+  return useMutation({
+    mutationFn: ({ name, email, password }) => registerUser({ name, email, password })
+  })
 }
