@@ -38,7 +38,13 @@ const Profile = ({ profile }) => {
 					</div>
 
 					<div className="flex flex-col w-full items-center gap-2 md:gap-3 lg:gap-4">
-						<button className="w-5/6 md:h-4/10 lg:h-1/2 rounded-xl py-1 md:py-2 lg:py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors">
+						<button 
+							className="w-5/6 md:h-4/10 lg:h-1/2 rounded-xl py-1 md:py-2 lg:py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
+							onClick={() => {
+								profile.setLogin(true);
+								profile.setToggle(false);
+							}}
+						>
 							Sign in
 						</button>
 

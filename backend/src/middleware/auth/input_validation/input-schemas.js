@@ -43,6 +43,15 @@ const pass_field = Joi.string()
 	}
 );
 
+const login_pass_field = Joi.string()
+	.required()
+	.messages({
+		"string.base": "Password should be a type of text.",
+		"string.empty": "Password cannot be empty.",
+		"any.required": "Password is a required field.",
+	}
+);
+
 const search_field = Joi.array()
 	.min(1)
 	.required()
@@ -55,7 +64,7 @@ const search_field = Joi.array()
 
 export const loginSchema = Joi.object({
 	email: email_field,
-	password: Joi.string().required(),
+	password: login_pass_field,
 });
 
 export const registrationSchema = Joi.object({

@@ -130,8 +130,6 @@ export const logoutUser = async (req, res, next) => {
 
 		const { payload } = await jwtVerify(refreshToken, refreshSecret);
 
-		if (!payload) return res.status(403).json({ message: "You little rat." });
-
 		const userId = payload.id;
 
 		res.clearCookie("accessToken");
@@ -166,8 +164,6 @@ export const refreshUser = async (req, res, next) => {
 		);
 
 		const { payload } = await jwtVerify(refreshToken, refreshSecret);
-
-		if (!payload) return res.status(403).json({ message: "You little rat." });
 
 		const hashedRefreshToken = await crypto
 			.createHash("sha256")
@@ -292,12 +288,12 @@ export const resetPassword = async (req, res, next) => {
 		if (expired) {
 			await deletePassResetService(user.user_id);
 
-			return res.status(403).json({ message: "Password reset token expired" });
+			return res.status(401).json({ message: "Password reset token expired" });
 		}
 
 		if (token !== user.token_hash) {
 			return res
-				.status(403)
+				.status(401)
 				.json({ message: "Input token and database token don't match" });
 		}
 

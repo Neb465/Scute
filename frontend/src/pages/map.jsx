@@ -12,6 +12,7 @@ import { useRoute } from "../hooks/route-hook.js";
 import { useProfile } from "../hooks/profile-hook.js";
 import PathInfo from "../components/path-info.jsx";
 import CreateAccountBox from "../components/create-account.jsx";
+import LoginBox from "../components/login.jsx";
 
 function Map() {
 	const routeButton = useRoute();
@@ -50,6 +51,7 @@ function Map() {
 				</div>
 
 				{profile.createAcc && <CreateAccountBox profile={profile}/>}
+				{profile.login && <LoginBox profile={profile}/>}
 
 				{positions.length > 0 && (
 					<>
