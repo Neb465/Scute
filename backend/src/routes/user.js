@@ -2,6 +2,7 @@ import express from "express";
 import {
 	deleteUser,
 	getAllUsers,
+	getUserByAuth,
 	getUserById,
 	updateUser,
 } from "../controllers/user-controller.js";
@@ -16,28 +17,33 @@ import { userAllInfoUpdateSchema } from "../middleware/auth/input_validation/inp
 
 const router = express.Router();
 
+//user routes
+router.get("/me", authenticate, getUserByAuth);
+
+//admin routes
 router.get("/", authenticate, authorizeWithoutId(["admin"]), getAllUsers);
 router.get(
 	"/:id",
 	authenticate,
-	authorizeWithId(["admin", "user"]),
+	authorizeWithoutId(["admin"]),
 	getUserById,
 );
 
 router.put(
 	"/:id",
 	validateInput(userAllInfoUpdateSchema),
-	validatePassword,
 	authenticate,
-	authorizeWithId(["admin", "user"]),
+	authorizeWithoutId(["admin"]),
+	validatePassword,
 	updateUser,
 );
 
 router.delete(
 	"/:id",
 	authenticate,
-	authorizeWithId(["admin", "user"]),
+	authorizeWithoutId(["admin"]),
 	deleteUser,
 );
+
 
 export default router;

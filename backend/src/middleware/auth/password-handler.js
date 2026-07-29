@@ -19,7 +19,7 @@ export const validatePassword = async (req, res, next) => {
 				.json({ message: "Hashed password not found in database" });
 		}
 
-		const isPassValid = await bcrypt.compare(password, hashedPass);
+		const isPassValid = await bcrypt.compare(password, hashedPass.password);
 
 		if (!isPassValid) {
 			return res.status(401).json({ message: "Incorrect password" });

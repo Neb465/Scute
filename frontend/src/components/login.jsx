@@ -1,7 +1,9 @@
 import { useLogin } from "../hooks/login-hook";
+import { useProfileStore } from "../stores/useProfileStore";
 
-const LoginBox = ({ profile }) => {
+const LoginBox = () => {
   const loginHook = useLogin();
+  const profileHandleLogin = useProfileStore((state) => state.handleLogin);
 
   return (
     <div
@@ -15,7 +17,7 @@ const LoginBox = ({ profile }) => {
             <button
               className="absolute top-1 right-0 w-1/12 hover:bg-gray-300 rounded-xl"
               type="button"
-              onClick={() => profile.setLogin(false)}
+              onClick={() => profileHandleLogin(false)}
             >
               X
             </button>
@@ -37,7 +39,7 @@ const LoginBox = ({ profile }) => {
           <div className="flex flex-col gap-1">
             <label htmlFor="password" className="text-[12px] text-[#5f6368] font-medium">Password</label>
             <input
-              type="text"
+              type="password"
               value={loginHook.passField}
               onChange={(e) => loginHook.setPassField(e.target.value)}
               placeholder="Enter your password"
@@ -74,10 +76,11 @@ const LoginBox = ({ profile }) => {
             </p>
           }
 
-          {loginHook.loginMutation.isSuccess &&
-            <p className="text-green-800 text-[14px]">
-              Account logged in!
-            </p>
+          {loginHook.loginMutation.isSuccess && (
+              <p className="text-green-800 text-[14px]">
+                Account logged in!
+              </p>
+            )
           }
 
           <div className="absolute bottom-5 w-72">

@@ -18,7 +18,10 @@ const port = process.env.PORT || 8000;
 //Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors()); //change later to only allow frontend to make requests
+app.use(cors({
+	origin: "http://localhost:5173",
+	credentials: true
+})); //change later to only allow frontend to make requests
 
 //Routes
 app.use("/api/users", limiter, user);

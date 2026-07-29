@@ -8,7 +8,7 @@ const searchInit = {
 	finalQuery: "",
 };
 
-export const useMapStore = create((set, get) => ({
+export const useMapStore = create((set) => ({
 	start: { ...searchInit },
 	end: { ...searchInit },
 	//autoFillDebounce: {start: null, end: null},

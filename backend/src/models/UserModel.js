@@ -7,7 +7,7 @@ export const getAllUsersService = async () => {
 };
 
 export const getUserByIdService = async (id) => {
-	const result = await db.one(
+	const result = await db.oneOrNone(
 		"SELECT id, name, email, role FROM users where id = $1",
 		[id],
 	);
@@ -31,11 +31,10 @@ export const updateUserService = async (id, name, email) => {
 };
 
 export const updateUserPassService = async (id, hashedPass) => {
-	const result = await db.oneOrNone(
+	await db.none(
 		"UPDATE users SET password = $1 WHERE id = $2",
 		[hashedPass, id],
 	);
-	return result;
 };
 
 export const deleteUserService = async (id) => {

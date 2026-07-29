@@ -1,6 +1,7 @@
-import { useQuery, QueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useMapStore } from "../stores/useMapStore";
+import { useProfileStore } from "../stores/useProfileStore";
 
 const useDebounce = (value) => {
   const [debounceValue, setDebounceValue] = useState(value);
@@ -17,11 +18,11 @@ const useDebounce = (value) => {
 }
 
 const renderAutoFill = async (query) => {
-  const response = await fetch(
+  let response = await fetch(
     "http://localhost:8000/api/geocode?" +
-      new URLSearchParams({
-        q: query,
-      }),
+    new URLSearchParams({
+      q: query,
+    }),
   );
 
   const data = await response.json();
@@ -31,14 +32,14 @@ const renderAutoFill = async (query) => {
 
 export const useSearchQuery = (type) => {
   const query = useMapStore((state) => state[type].query);
-  const autoFillCanDiplay = useMapStore((state) => state[type].autoFillCanDiplay);
+  const autoFillCanDisplay = useMapStore((state) => state[type].autoFillCanDisplay);
 
   const debounceQuery = useDebounce(query);
 
   return useQuery({
     queryKey: ['searchAutoFill', type, debounceQuery],
     queryFn: () => renderAutoFill(debounceQuery),
-    enabled: debounceQuery.length >= 3 && !autoFillCanDiplay,
+    enabled: debounceQuery.length >= 3 && !autoFillCanDisplay,
     //cache for 10 minutes
     staleTime: 1000 * 60 * 10
   })

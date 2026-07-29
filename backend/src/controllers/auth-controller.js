@@ -66,13 +66,13 @@ export const loginUser = async (req, res, next) => {
 			process.env.JWT_REFRESH_TOKEN_SECRET,
 		);
 
-		const accessToken = await new SignJWT({ id: user.id, role: user.role })
+		const accessToken = await new SignJWT({ id: user.id, name: user.name, email: user.email, role: user.role })
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
 			.setExpirationTime(process.env.JWT_ACCESS_EXPIRATION || "1h")
 			.sign(accessSecret);
 
-		const refreshToken = await new SignJWT({ id: user.id, role: user.role })
+		const refreshToken = await new SignJWT({ id: user.id })
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
 			.setExpirationTime(process.env.JWT_REFRESH_EXPIRATION || "7d")
@@ -155,7 +155,7 @@ export const refreshUser = async (req, res, next) => {
 		const refreshToken = req.cookies.refreshToken;
 
 		if (!refreshToken) {
-			return res.status(401).json({ message: "No refresh token" });
+			return res.status(403).json({ message: "No refresh token" });
 		}
 
 		//first part of auth, jwtVerify
@@ -181,7 +181,7 @@ export const refreshUser = async (req, res, next) => {
 		const expired = new Date() > user.expires_at;
 
 		if (expired) {
-			await deleteRefreshTokenService(user.user_id);
+			await deleteRefreshTokenService(user.user_id, hashedRefreshToken);
 
 			res.clearCookie("accessToken");
 			res.clearCookie("refreshToken");
@@ -192,7 +192,7 @@ export const refreshUser = async (req, res, next) => {
 			process.env.JWT_ACCESS_TOKEN_SECRET,
 		);
 
-		const accessToken = await new SignJWT({ id: user.user_id, role: user.role })
+		const accessToken = await new SignJWT({ id: user.user_id, name: user.name, email: user.email, role: user.role })
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
 			.setExpirationTime(process.env.JWT_ACCESS_EXPIRATION || "1h")
@@ -200,7 +200,7 @@ export const refreshUser = async (req, res, next) => {
 
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
+			secure: false, //process.env.NODE_ENV === "production"
 			sameSite: "lax",
 			maxAge: ms("1h"),
 		});
@@ -208,7 +208,7 @@ export const refreshUser = async (req, res, next) => {
 		return res.status(200).json({
 			message: "Cookie refreshed successfully",
 			data: {
-				id: user.id,
+				id: user.user_id,
 				name: user.name,
 				email: user.email,
 			},
@@ -302,16 +302,18 @@ export const resetPassword = async (req, res, next) => {
 
 		const oldHashedPass = await getPasswordByIdService(user.user_id);
 
-		if (await bcrypt.compare(password, oldHashedPass)) {
+		if (await bcrypt.compare(password, oldHashedPass.password)) {
 			return res
 				.status(400)
 				.json({ message: "New password cannot be the same as the old password!" });
 		}
 
-		const updatedUser = await updateUserPassService(user.user_id, hashedPass);
+		await updateUserPassService(user.user_id, hashedPass);
 
 		await deletePassResetService(user.user_id);
 
+		res.clearCookie("accessToken");
+		res.clearCookie("refreshToken");
 		res.status(200).json({ message: "User updated successfully" });
 	} catch (e) {
 		next(e);

@@ -1,6 +1,20 @@
 import React from "react";
+import { useProfileStore } from "../stores/useProfileStore";
+import { useProfile } from "../hooks/profile-hook";
+import { useFetchUser } from "../api/fetch-user-api";
 
-const Profile = ({ profile }) => {
+const Profile = () => {
+	//Tanstack query
+	const { data } = useFetchUser();
+
+	//Zustand
+	const profileAuth = useProfileStore((state) => state["profile"].authenticated)
+	const profileHandleCreateAcc = useProfileStore((state) => state.handleCreateAcc);
+	const profileHandleLogin = useProfileStore((state) => state.handleLogin);
+
+	//useState
+	const profileHook = useProfile();
+
 	return (
 		<div
 			className="relative flex flex-col items-end mx-5 my-5  z-1000"
@@ -8,7 +22,7 @@ const Profile = ({ profile }) => {
 		>
 			<button
 				className="bg-white w-11 h-11 rounded-full flex items-center justify-center transition-all hover:ring-2 hover:ring-[#1a73e8]/30 focus:outline-none"
-				onClick={() => profile.setToggle(!profile.toggle)}
+				onClick={() => profileHook.setToggle(!profileHook.toggle)}
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +40,7 @@ const Profile = ({ profile }) => {
 				</svg>
 			</button>
 
-			{profile.toggle && (
+			{profileHook.toggle && !profileAuth && (
 				<div className="bg-gray-50 w-40 h-35 md:w-50 md:h-45 lg:w-60 lg:h-55 my-2 rounded-lg flex flex-col">
 					<div className="flex flex-col w-full px-5 my-2 md:my-3 lg:my-4">
 						<h1 className="text-[12px] md:text-[13px] lg:text-[14px] font-medium">
@@ -41,8 +55,8 @@ const Profile = ({ profile }) => {
 						<button 
 							className="w-5/6 md:h-4/10 lg:h-1/2 rounded-xl py-1 md:py-2 lg:py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
 							onClick={() => {
-								profile.setLogin(true);
-								profile.setToggle(false);
+								profileHandleLogin(true);
+								profileHook.setToggle(false);
 							}}
 						>
 							Sign in
@@ -51,12 +65,22 @@ const Profile = ({ profile }) => {
 						<button 
 							className="w-5/6 md:h-4/10 lg:h-1/2 rounded-xl py-1 md:py-2 lg:py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#dedede] text-[#1a73e8] hover:bg-[#c9c9c9] transition-colors"
 							onClick={() => {
-								profile.setCreateAcc(true);
-								profile.setToggle(false);
+								profileHandleCreateAcc(true);
+								profileHook.setToggle(false);
 							}}
 						>
 							Create Account
 						</button>
+					</div>
+				</div>
+			)}
+
+			{profileHook.toggle && profileAuth && data && (
+				<div className="bg-gray-50 w-40 h-35 md:w-50 md:h-45 lg:w-60 lg:h-55 my-2 rounded-lg flex flex-col">
+					<div className="flex flex-col w-full px-5 my-2 md:my-3 lg:my-4">
+						<h1 className="text-[12px] md:text-[13px] lg:text-[14px] font-medium">
+							Hi {data.name}. Your email is {data.email} and your role is {data.role}
+						</h1>
 					</div>
 				</div>
 			)}

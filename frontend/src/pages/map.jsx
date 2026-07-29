@@ -13,10 +13,12 @@ import { useProfile } from "../hooks/profile-hook.js";
 import PathInfo from "../components/path-info.jsx";
 import CreateAccountBox from "../components/create-account.jsx";
 import LoginBox from "../components/login.jsx";
+import { useProfileStore } from "../stores/useProfileStore.js";
 
 function Map() {
 	const routeButton = useRoute();
-	const profile = useProfile();
+	const profileCreateAcc = useProfileStore((state) => state["profile"].createAcc);
+	const profileLogin = useProfileStore((state) => state["profile"].login)
 
 	const positions = routeButton.route
 		? routeButton.route.map(([lon, lat]) => [lat, lon])
@@ -47,11 +49,11 @@ function Map() {
 
 				<div className="flex flex-row justify-between">
 					<SearchBox getRoute={routeButton.getRoute} isError={routeButton.isError} error={routeButton.error}/>
-					<Profile profile={profile}/>
+					<Profile />
 				</div>
 
-				{profile.createAcc && <CreateAccountBox profile={profile}/>}
-				{profile.login && <LoginBox profile={profile}/>}
+				{profileCreateAcc && <CreateAccountBox />}
+				{profileLogin && <LoginBox />}
 
 				{positions.length > 0 && (
 					<>

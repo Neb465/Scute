@@ -1,6 +1,8 @@
 import { useCreateAcc } from "../hooks/create-acc-hook";
+import { useProfileStore } from "../stores/useProfileStore";
 
-const CreateAccountBox = ({ profile }) => {
+const CreateAccountBox = () => {
+  const profileStore = useProfileStore();
   const registerHook = useCreateAcc();
   return (
     <div
@@ -14,7 +16,7 @@ const CreateAccountBox = ({ profile }) => {
             <button
               className="absolute top-1 right-0 w-1/12 hover:bg-gray-300 rounded-xl"
               type="button"
-              onClick={() => profile.setCreateAcc(false)}
+              onClick={() => profileStore.handleCreateAcc(false)}
             >
               X
             </button>
@@ -49,7 +51,7 @@ const CreateAccountBox = ({ profile }) => {
           <div className="flex flex-col gap-1">
             <label htmlFor="password" className="text-[12px] text-[#5f6368] font-medium">Password</label>
             <input
-              type="text"
+              type="password"
               value={registerHook.passField}
               onChange={(e) => registerHook.setPassField(e.target.value)}
               placeholder="Enter your password"

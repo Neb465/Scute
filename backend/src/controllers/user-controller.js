@@ -36,12 +36,29 @@ export const getUserById = async (req, res, next) => {
 	}
 };
 
+export const getUserByAuth = async (req, res, next) => {
+	try {
+		const user = req.user;
+
+		if(!user){
+			return res.status(401).json({ message: "User not authenticated" });
+		}
+
+		res.status(200).json({
+			message: "User fetched successfully",
+			data: user
+		})
+	} catch (e) {
+		next(e);
+	}
+}
+
 //currently the only function with password validation. Maybe change in the future
 export const updateUser = async (req, res, next) => {
 	const { name, email, password } = req.body;
 
 	try {
-		const updatedUser = await updateUserAllService(req.params.id, name, email);
+		const updatedUser = await updateUserService(req.params.id, name, email);
 
 		if (!updatedUser) {
 			return res.status(404).json({ message: "User not found" });

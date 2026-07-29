@@ -2,6 +2,7 @@ import React from "react";
 import { useSearchQuery } from "../api/search-api.js";
 import { useSearchHook } from "../hooks/search-hook.js";
 import { useMapStore } from "../stores/useMapStore.js";
+import { useProfileStore } from "../stores/useProfileStore.js";
 
 const SearchBox = ({ getRoute, isError, error }) => {
 	// local states
@@ -24,6 +25,8 @@ const SearchBox = ({ getRoute, isError, error }) => {
 		(state) => state.handleAutoFillButton,
 	);
 	const handleFinalQuery = useMapStore((state) => state.handleFinalQuery);
+
+	const profileHandleLogin = useProfileStore((state) => state.handleLogin);
 
 	return (
 		<div className="flex flex-col h-full w-45 md:w-60 lg:w-75 mx-6 my-4">
@@ -104,8 +107,8 @@ const SearchBox = ({ getRoute, isError, error }) => {
 						<button
 							className="w-full rounded-xl py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
 							onClick={async () => {
-								if (startCoords && endCoords) {
-									getRoute(startCoords, endCoords);
+								if (startCoords.length > 0 && endCoords.length > 0) {
+									getRoute(startCoords, endCoords, profileHandleLogin);
 									handleFinalQuery("start", startQuery);
 									handleFinalQuery("end", endQuery);
 								}
