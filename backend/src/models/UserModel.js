@@ -17,7 +17,7 @@ export const getUserByIdService = async (id) => {
 export const createUserService = async (name, email, hashedPass) => {
 	const result = await db.one(
 		"INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, 'user') RETURNING id, name, email",
-		[name, email, hashedPass],
+		[name, email.toLowerCase(), hashedPass],
 	);
 	return result;
 };
@@ -25,7 +25,7 @@ export const createUserService = async (name, email, hashedPass) => {
 export const updateUserService = async (id, name, email) => {
 	const result = await db.oneOrNone(
 		"UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING id, name, email",
-		[name, email, id],
+		[name, email.toLowerCase(), id],
 	);
 	return result;
 };

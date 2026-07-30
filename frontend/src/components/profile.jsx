@@ -22,7 +22,7 @@ const Profile = () => {
 			style={{ fontFamily: "'Google Sans', 'Roboto', sans-serif" }}
 		>
 			<button
-				className="bg-white w-11 h-11 rounded-full flex items-center justify-center transition-all hover:ring-2 hover:ring-[#1a73e8]/30 focus:outline-none"
+				className={`${profileAuth ? "bg-[#1a73e8]" : "bg-white"} w-11 h-11 rounded-full flex items-center justify-center transition-all hover:ring-2 hover:ring-[#1a73e8]/30 focus:outline-none`}
 				onClick={() => profileHook.setToggle(!profileHook.toggle)}
 			>
 				<svg
@@ -31,7 +31,7 @@ const Profile = () => {
 					height="18"
 					viewBox="0 0 24 24"
 					fill="none"
-					stroke="#5f6368"
+					stroke={`${profileAuth ? "#FFFFFF" : "#5f6368"}`}
 					strokeWidth="2"
 					strokeLinecap="round"
 					strokeLinejoin="round"

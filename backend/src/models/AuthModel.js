@@ -10,7 +10,7 @@ export const getPasswordByIdService = async (id) => {
 
 export const getUserByEmailService = async (email) => {
 	const result = await db.oneOrNone("SELECT * FROM users WHERE email = $1", [
-		email,
+		email.toLowerCase(),
 	]);
 	return result;
 };
