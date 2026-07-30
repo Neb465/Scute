@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useForgotPassMutation, useLoginMutation } from "../api/login-api";
+import { useForgotPassMutation, useLoginMutation } from "../api/auth-api";
+
 
 export const useLogin = () => {
   //local state

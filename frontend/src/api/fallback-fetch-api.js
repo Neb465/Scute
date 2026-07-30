@@ -1,4 +1,4 @@
-export const fetchWithToken = async (url, options) => {
+export const fallbackFetch = async (url, options) => {
   options.credentials = "include";
 
   let response = await fetch(url, options);
@@ -14,7 +14,9 @@ export const fetchWithToken = async (url, options) => {
 
     //*DOLATER* send user to login
     if(refetch.status === 403){
-      throw new Error("Session expired. Re-login.");
+      e = new Error("Session expired. Re-login.");
+      e.status = 403;
+      throw e;
     }
 
     if(refetch.ok) {

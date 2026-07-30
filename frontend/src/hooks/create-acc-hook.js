@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRegisterUserMutation } from "../api/create-acc-api"
+import { useRegisterUserMutation } from "../api/auth-api";
 
 export const useCreateAcc = () => {
   //local state

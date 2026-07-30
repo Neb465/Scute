@@ -1,7 +1,8 @@
 import React from "react";
 import { useProfileStore } from "../stores/useProfileStore";
 import { useProfile } from "../hooks/profile-hook";
-import { useFetchUser } from "../api/fetch-user-api";
+import { useFetchUser } from "../api/auth-api";
+
 
 const Profile = () => {
 	//Tanstack query
@@ -76,12 +77,24 @@ const Profile = () => {
 			)}
 
 			{profileHook.toggle && profileAuth && data && (
-				<div className="bg-gray-50 w-40 h-35 md:w-50 md:h-45 lg:w-60 lg:h-55 my-2 rounded-lg flex flex-col">
-					<div className="flex flex-col w-full px-5 my-2 md:my-3 lg:my-4">
-						<h1 className="text-[12px] md:text-[13px] lg:text-[14px] font-medium">
-							Hi {data.name}. Your email is {data.email} and your role is {data.role}
-						</h1>
-					</div>
+				<div className="bg-gray-50 w-40 h-35 md:w-50 md:h-45 lg:w-60 lg:h-55 my-2 rounded-lg flex flex-col items-center justify-center px-3">
+					<h1 className="text-[14px] md:text-[15px] lg:text-[16px] font-medium">
+						Hi {data.name}!
+					</h1>
+
+					<p className="text-[10px] md:text-[11px] lg:text-[12px] text-center font-bold">
+						Your email is: {data.email}.
+					</p>
+
+					<button
+						className="w-4/5 h-1/5 rounded-xl mt-2 py-1 md:py-2 lg:py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
+						onClick={() => {
+							profileHook.logoutMutation.mutate();
+							profileHook.setToggle(false);
+						}}
+					>
+						Logout
+					</button>
 				</div>
 			)}
 		</div>

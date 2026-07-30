@@ -39,7 +39,7 @@ export const useSearchQuery = (type) => {
   return useQuery({
     queryKey: ['searchAutoFill', type, debounceQuery],
     queryFn: () => renderAutoFill(debounceQuery),
-    enabled: debounceQuery.length >= 3 && !autoFillCanDisplay,
+    enabled: debounceQuery.length >= 3 && autoFillCanDisplay,
     //cache for 10 minutes
     staleTime: 1000 * 60 * 10
   })
