@@ -62,6 +62,15 @@ const search_field = Joi.array()
 	}
 );
 
+const token_field = Joi.string()
+	.required()
+	.messages({
+		"string.base": "Token must come from URL params.",
+		"string.empty": "Token is empty.",
+		"any.required": "Token is required.",
+	}
+);
+
 export const loginSchema = Joi.object({
 	email: email_field,
 	password: login_pass_field,
@@ -88,7 +97,8 @@ export const forgotPassSchema = Joi.object({
 })
 
 export const resetPassSchema = Joi.object({
-	password: pass_field
+	password: pass_field,
+	token: token_field
 })
 
 export const searchSchema = Joi.object({

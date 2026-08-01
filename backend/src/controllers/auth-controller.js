@@ -239,7 +239,7 @@ export const forgotPassword = async (req, res, next) => {
 		);
 
 		//*IMPORTANT* Change reset url to actual website's reset user page. Where the user will input their new password and press a button to call reset password.
-		const resetUrl = `${process.env.SMTP_BASE_URL}/api/auth/resetPassword?token=${hashedToken}`;
+		const resetUrl = `http://localhost:5173/resetPass?token=${hashedToken}`;
 
 		const transporter = nodemailer.createTransport({
 			host: process.env.SMTP_HOST,
@@ -272,8 +272,7 @@ export const forgotPassword = async (req, res, next) => {
 //ensure user cannot use the same password
 export const resetPassword = async (req, res, next) => {
 	//both checked in inputvalidators
-	const { password } = req.body;
-	const { token } = req.query;
+	const { password, token } = req.body;
 	try {
 		const user = await getPassResetService(token);
 		if (!user) {
@@ -314,6 +313,7 @@ export const resetPassword = async (req, res, next) => {
 
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
+
 		res.status(200).json({ message: "User updated successfully" });
 	} catch (e) {
 		next(e);

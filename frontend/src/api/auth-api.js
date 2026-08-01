@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import { useProfileStore } from "../stores/useProfileStore";
 import { fallbackFetch } from "./fallback-fetch-api";
@@ -66,24 +66,52 @@ const logoutUser = async () => {
 	return data.message;
 };
 
-//add fallback fetch
 const forgotPassword = async ({ email }) => {
-	const response = await fetch("http://localhost:8000/api/auth/forgot-pass", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			email: email,
-		}),
-	});
+	const response = await fetch(
+		"http://localhost:8000/api/auth/forgot-pass",
+		{
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				email: email,
+			}),
+			credentials:"include"
+		},
+	);
 
 	const data = await response.json();
 
 	if (!response.ok) {
-		throw new Error(data.message || "Create account failed");
+		throw new Error(data.message || "Forgot password call failed.");
 	}
 
 	return data.message;
 };
+
+const resetPassword = async ({ token, newPass }) => {
+	const response = await fetch(
+		"http://localhost:8000/api/auth/reset-pass",
+		{
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				token: token,
+				password: newPass
+			}),
+			credentials: "include",
+		},
+	);
+
+	const data = await response.json();
+
+	//console.log(token);
+
+	if (!response.ok) {
+		throw new Error(data.message || "Reset password failed.");
+	}
+
+	return data.message;
+}
 
 const registerUser = async ({ name, email, password }) => {
 	const response = await fetch("http://localhost:8000/api/auth/register", {
@@ -113,7 +141,8 @@ export const useFetchUser = () => {
 		queryKey: ["userDataFetch"],
 		queryFn: () => fetchUserData(setAuth, setLogin),
 		staleTime: 1000 * 60 * 5, //5 minutes
-		refetchOnWindowFocus: false
+		refetchOnWindowFocus: false,
+		retry: false
 	});
 };
 
@@ -125,17 +154,20 @@ export const useRegisterUserMutation = () => {
 };
 
 export const useLoginMutation = () => {
-	const profileHandleAuth = useProfileStore(
+	const queryClient = useQueryClient();
+
+	const setAuth = useProfileStore(
 		(state) => state.handleAuthenticated,
 	);
 
-	const profileHandleLogin = useProfileStore((state) => state.handleLogin);
+	const setLogin = useProfileStore((state) => state.handleLogin);
 
 	return useMutation({
 		mutationFn: ({ email, password }) => loginUser({ email, password }),
-		onSuccess: () => {
-			profileHandleAuth(true);
-			profileHandleLogin(false);
+		onSuccess: (user) => {
+			setAuth(true);
+			setLogin(false);
+			queryClient.setQueryData(["userDataFetch"], user);
 		},
 	});
 };
@@ -154,5 +186,11 @@ export const useLogoutMutation = () => {
 export const useForgotPassMutation = () => {
 	return useMutation({
 		mutationFn: ({ email }) => forgotPassword({ email }),
+	});
+};
+
+export const useResetPassMutation = () => {
+	return useMutation({
+		mutationFn: ({ token, newPass }) => resetPassword({ token, newPass })
 	});
 };
