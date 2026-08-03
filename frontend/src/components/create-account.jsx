@@ -2,7 +2,7 @@ import { useCreateAcc } from "../hooks/create-acc-hook";
 import { useProfileStore } from "../stores/useProfileStore";
 
 const CreateAccountBox = () => {
-  const profileStore = useProfileStore();
+  const handleCreateAcc = useProfileStore((state) => state.handleCreateAcc);
   const registerHook = useCreateAcc();
   return (
     <div
@@ -16,7 +16,7 @@ const CreateAccountBox = () => {
             <button
               className="absolute top-1 right-0 w-1/12 hover:bg-gray-300 rounded-xl"
               type="button"
-              onClick={() => profileStore.handleCreateAcc(false)}
+              onClick={() => handleCreateAcc(false)}
             >
               X
             </button>

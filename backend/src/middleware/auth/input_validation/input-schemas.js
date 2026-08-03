@@ -82,12 +82,6 @@ export const registrationSchema = Joi.object({
 	password: pass_field,
 });
 
-export const userAllInfoUpdateSchema = Joi.object({
-	name: name_field,
-	email: email_field,
-	password: pass_field,
-});
-
 export const userPassUpdateSchema = Joi.object({
 	password: pass_field,
 });
@@ -116,6 +110,10 @@ export const emailUpdateSchema = Joi.object({
 });
 
 export const passwordUpdateSchema = Joi.object({
-	password: verify_pass_field,
 	newPassword: pass_field,
+	password: verify_pass_field,
 });
+
+export const deleteUserSchema = Joi.object({
+	password: verify_pass_field
+})

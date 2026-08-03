@@ -1,6 +1,5 @@
 import express from "express";
 import {
-	deleteUser,
 	getAllUsers,
 	getUserByAuth,
 	getUserById,
@@ -14,13 +13,6 @@ const router = express.Router();
 
 //user routes
 router.get("/me", authenticate, getUserByAuth);
-
-router.delete(
-	"/me",
-	authenticate,
-	authorizeWithoutId(["user", "admin"]),
-	deleteUser,
-);
 
 //admin routes
 router.get("/", authenticate, authorizeWithoutId(["admin"]), getAllUsers);

@@ -1,14 +1,7 @@
 import {
-	createUserService,
-	deleteUserService,
 	getAllUsersService,
 	getUserByIdService,
-	updateUserEmailService,
-	updateUserNameService,
-	updateUserPassService,
 } from "../models/UserModel.js";
-import bcrypt from "bcrypt";
-import { getPasswordByIdService } from "../models/AuthModel.js";
 
 export const getAllUsers = async (req, res, next) => {
 	try {
@@ -55,17 +48,3 @@ export const getUserByAuth = async (req, res, next) => {
 	}
 };
 
-export const deleteUser = async (req, res, next) => {
-	try {
-		const deletedUser = await deleteUserService(req.user.id);
-
-		if (!deletedUser) return res.status(404).json({ message: "User not found" });
-
-		res.status(200).json({
-			message: "User deleted successfully",
-			data: deletedUser,
-		});
-	} catch (e) {
-		next(e);
-	}
-};

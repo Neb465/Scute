@@ -25,6 +25,26 @@ const fetchUserData = async (setAuthenticated, setLogin) => {
 	}
 };
 
+const registerUser = async ({ name, email, password }) => {
+	const response = await fetch("http://localhost:8000/api/auth/register", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			name: name,
+			email: email,
+			password: password,
+		}),
+	});
+
+	const data = await response.json();
+
+	if (!response.ok) {
+		throw new Error(data.message || "Create account failed");
+	}
+
+	return data.data;
+};
+
 //cannot use fallbackfetch because user isn't authenticated at this point
 const loginUser = async ({ name, email, password }) => {
 	const response = await fetch("http://localhost:8000/api/auth/login", {
@@ -82,74 +102,6 @@ const forgotPassword = async ({ email }) => {
 	return data.message;
 };
 
-const updateName = async ({ fieldQuery, setAuthenticated, setLogin }) => {
-	try {
-		const data = await fallbackFetch(
-			`http://localhost:8000/api/auth/me/name`,
-			{
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					fieldQuery: fieldQuery,
-				}),
-			},
-		);
-
-		setAuthenticated(true);
-
-		return data.data;
-	} catch (e) {
-		handleSessionError(e, setAuthenticated, setLogin);
-		throw e;
-	}
-};
-
-const updateEmail = async ({ fieldQuery, password, setAuthenticated, setLogin }) => {
-	try {
-		const data = await fallbackFetch(
-			`http://localhost:8000/api/auth/me/email`,
-			{
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					fieldQuery: fieldQuery,
-					password: password
-				}),
-			},
-		);
-
-		setAuthenticated(true);
-
-		return data.data;
-	} catch (e) {
-		handleSessionError(e, setAuthenticated, setLogin);
-		throw e;
-	}
-};
-
-const updatePass = async ({ newPassword, password, setAuthenticated, setLogin }) => {
-	try {
-		const data = await fallbackFetch(
-			`http://localhost:8000/api/auth/me/password`,
-			{
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					newPassword: newPassword,
-					password: password
-				}),
-			},
-		);
-
-		setAuthenticated(true);
-
-		return data.data;
-	} catch (e) {
-		handleSessionError(e, setAuthenticated, setLogin);
-		throw e;
-	}
-};
-
 const resetPassword = async ({ token, newPass }) => {
 	const response = await fetch("http://localhost:8000/api/auth/reset-pass", {
 		method: "POST",
@@ -170,24 +122,92 @@ const resetPassword = async ({ token, newPass }) => {
 	return data.message;
 };
 
-const registerUser = async ({ name, email, password }) => {
-	const response = await fetch("http://localhost:8000/api/auth/register", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			name: name,
-			email: email,
-			password: password,
-		}),
-	});
+const updateName = async ({ fieldQuery, setAuthenticated, setLogin }) => {
+	try {
+		const data = await fallbackFetch(`http://localhost:8000/api/auth/me/name`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				fieldQuery: fieldQuery,
+			}),
+		});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		throw new Error(data.message || "Create account failed");
+		return data.data;
+	} catch (e) {
+		handleSessionError(e, setAuthenticated, setLogin);
+		throw e;
 	}
+};
 
-	return data.data;
+const updateEmail = async ({
+	fieldQuery,
+	password,
+	setAuthenticated,
+	setLogin,
+}) => {
+	try {
+		const data = await fallbackFetch(
+			`http://localhost:8000/api/auth/me/email`,
+			{
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					fieldQuery: fieldQuery,
+					password: password,
+				}),
+			},
+		);
+
+		return data.data;
+	} catch (e) {
+		handleSessionError(e, setAuthenticated, setLogin);
+		throw e;
+	}
+};
+
+const updatePass = async ({
+	newPassword,
+	password,
+	setAuthenticated,
+	setLogin,
+}) => {
+	try {
+		const data = await fallbackFetch(
+			`http://localhost:8000/api/auth/me/password`,
+			{
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					newPassword: newPassword,
+					password: password,
+				}),
+			},
+		);
+
+		return data.data;
+	} catch (e) {
+		handleSessionError(e, setAuthenticated, setLogin);
+		throw e;
+	}
+};
+
+const deleteUser = async ({ password, setAuthenticated, setLogin }) => {
+	try {
+		const data = await fallbackFetch(
+			`http://localhost:8000/api/auth/me`,
+			{
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					password: password,
+				}),
+			},
+		);
+
+	} catch (e) {
+		handleSessionError(e, setAuthenticated, setLogin);
+		throw e;
+	}
 };
 
 export const useFetchUser = () => {
@@ -214,7 +234,6 @@ export const useLoginMutation = () => {
 	const queryClient = useQueryClient();
 
 	const setAuth = useProfileStore((state) => state.handleAuthenticated);
-
 	const setLogin = useProfileStore((state) => state.handleLogin);
 
 	return useMutation({
@@ -259,6 +278,9 @@ export const useUpdateEmailMutation = () => {
 	const queryClient = useQueryClient();
 	const setAuth = useProfileStore((state) => state.handleAuthenticated);
 	const setLogin = useProfileStore((state) => state.handleLogin);
+	const setEmailIsEditing = useProfileStore(
+		(state) => state.handleEmailIsEditing,
+	);
 
 	return useMutation({
 		mutationFn: ({ fieldQuery, password }) =>
@@ -270,14 +292,17 @@ export const useUpdateEmailMutation = () => {
 			}),
 		onSuccess: (updatedUser) => {
 			queryClient.setQueryData(["userDataFetch"], updatedUser);
+			setEmailIsEditing(false);
 		},
 	});
 };
 
 export const useUpdatePassMutation = () => {
-	const queryClient = useQueryClient();
 	const setAuth = useProfileStore((state) => state.handleAuthenticated);
 	const setLogin = useProfileStore((state) => state.handleLogin);
+	const setPassIsEditing = useProfileStore(
+		(state) => state.handlePassIsEditing,
+	);
 
 	return useMutation({
 		mutationFn: ({ newPassword, password }) =>
@@ -287,11 +312,36 @@ export const useUpdatePassMutation = () => {
 				setAuthenticated: setAuth,
 				setLogin: setLogin,
 			}),
-		onSuccess: (updatedUser) => {
-			queryClient.setQueryData(["userDataFetch"], updatedUser);
+		onSuccess: () => {
+			setPassIsEditing(false);
+			setAuth(false);
+			setLogin(true);
 		},
 	});
 };
+
+export const useDeleteUserMutation = () => {
+	const setAuth = useProfileStore((state) => state.handleAuthenticated);
+	const setLogin = useProfileStore((state) => state.handleLogin);
+	const setCreateAcc = useProfileStore((state) => state.handleCreateAcc);
+	const setPassIsEditing = useProfileStore(
+		(state) => state.handleDeleteUserIsEditing,
+	);
+
+	return useMutation({
+		mutationFn: ({ password }) =>
+			deleteUser({
+				password,
+				setAuthenticated: setAuth,
+				setLogin: setLogin,
+			}),
+		onSuccess: () => {
+			setPassIsEditing(false);
+			setAuth(false);
+			setCreateAcc(true);
+		},
+	});
+}
 
 export const useForgotPassMutation = () => {
 	return useMutation({

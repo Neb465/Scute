@@ -3,12 +3,7 @@ import crypto from "crypto";
 import ms from "ms";
 import nodemailer from "nodemailer";
 import {
-	createUserService,
-	updateUserEmailService,
-	updateUserNameService,
-	updateUserPassService,
-} from "../models/UserModel.js";
-import {
+	deleteAllRefreshTokenService,
 	deletePassResetService,
 	deleteRefreshTokenService,
 	getPassResetService,
@@ -17,6 +12,11 @@ import {
 	getUserByRefreshTokenService,
 	storePassResetService,
 	storeRefreshTokenService,
+	createUserService,
+	deleteUserService,
+	updateUserEmailService,
+	updateUserNameService,
+	updateUserPassService,
 } from "../models/AuthModel.js";
 import { jwtVerify, SignJWT } from "jose";
 
@@ -45,7 +45,7 @@ export const loginUser = async (req, res, next) => {
 		if (!user) {
 			return res.status(404).json({ message: "User not found" });
 		}
-		
+
 		const hashedPass = user.password;
 
 		if (!hashedPass) {
@@ -68,7 +68,12 @@ export const loginUser = async (req, res, next) => {
 			process.env.JWT_REFRESH_TOKEN_SECRET,
 		);
 
-		const accessToken = await new SignJWT({ id: user.id, name: user.name, email: user.email, role: user.role })
+		const accessToken = await new SignJWT({
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			role: user.role,
+		})
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
 			.setExpirationTime(process.env.JWT_ACCESS_EXPIRATION || "1h")
@@ -87,14 +92,14 @@ export const loginUser = async (req, res, next) => {
 
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
+			secure: true,
 			sameSite: "lax",
 			maxAge: ms("1h"),
 		});
 
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
+			secure: true,
 			sameSite: "lax",
 			maxAge: ms("7d"),
 		});
@@ -136,7 +141,7 @@ export const logoutUser = async (req, res, next) => {
 
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
-		
+
 		await deleteRefreshTokenService(userId, hashedToken);
 
 		return res.status(200).json({
@@ -153,10 +158,13 @@ export const updateUserName = async (req, res, next) => {
 	try {
 		const user = req.user;
 
-		const updatedUser = await updateUserNameService(
-			user.id,
-			fieldQuery,
-		);
+		if (user.name === fieldQuery) {
+			return res.status(400).json({
+				message: "New name cannot be the same as the old name!",
+			});
+		}
+
+		const updatedUser = await updateUserNameService(user.id, fieldQuery);
 
 		if (!updatedUser) {
 			return res.status(404).json({ message: "User not found" });
@@ -166,7 +174,12 @@ export const updateUserName = async (req, res, next) => {
 			process.env.JWT_ACCESS_TOKEN_SECRET,
 		);
 
-		const accessToken = await new SignJWT({ id: updatedUser.id, name: updatedUser.name, email: updatedUser.email, role: updatedUser.role })
+		const accessToken = await new SignJWT({
+			id: updatedUser.id,
+			name: updatedUser.name,
+			email: updatedUser.email,
+			role: updatedUser.role,
+		})
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
 			.setExpirationTime(process.env.JWT_ACCESS_EXPIRATION || "1h")
@@ -174,7 +187,7 @@ export const updateUserName = async (req, res, next) => {
 
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
+			secure: true,
 			sameSite: "lax",
 			maxAge: ms("1h"),
 		});
@@ -194,10 +207,13 @@ export const updateUserEmail = async (req, res, next) => {
 	try {
 		const user = req.user;
 
-		const updatedUser = await updateUserEmailService(
-			user.id,
-			fieldQuery,
-		);
+		if (user.email === fieldQuery) {
+			return res.status(400).json({
+				message: "New email cannot be the same as the old email!",
+			});
+		}
+
+		const updatedUser = await updateUserEmailService(user.id, fieldQuery);
 
 		if (!updatedUser) {
 			return res.status(404).json({ message: "User not found" });
@@ -207,7 +223,12 @@ export const updateUserEmail = async (req, res, next) => {
 			process.env.JWT_ACCESS_TOKEN_SECRET,
 		);
 
-		const accessToken = await new SignJWT({ id: updatedUser.id, name: updatedUser.name, email: updatedUser.email, role: updatedUser.role })
+		const accessToken = await new SignJWT({
+			id: updatedUser.id,
+			name: updatedUser.name,
+			email: updatedUser.email,
+			role: updatedUser.role,
+		})
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
 			.setExpirationTime(process.env.JWT_ACCESS_EXPIRATION || "1h")
@@ -215,7 +236,7 @@ export const updateUserEmail = async (req, res, next) => {
 
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
+			secure: true,
 			sameSite: "lax",
 			maxAge: ms("1h"),
 		});
@@ -229,12 +250,14 @@ export const updateUserEmail = async (req, res, next) => {
 	}
 };
 
-//fix
 export const updateUserPassword = async (req, res, next) => {
 	const { newPassword } = req.body;
 
 	try {
-		const oldHashedPass = await getPasswordByIdService(req.user.id);
+		//user should be auth by now
+		const user = req.user;
+
+		const oldHashedPass = await getPasswordByIdService(user.id);
 
 		if (await bcrypt.compare(newPassword, oldHashedPass.password)) {
 			return res.status(400).json({
@@ -244,9 +267,39 @@ export const updateUserPassword = async (req, res, next) => {
 
 		const saltRounds = 10;
 		const hashedPass = await bcrypt.hash(newPassword, saltRounds);
-		await updateUserPassService(req.user.id, hashedPass);
+		await updateUserPassService(user.id, hashedPass);
+
+		//invalidate all sessions, including the current one
+		await deleteAllRefreshTokenService(user.id);
+		res.clearCookie("accessToken");
+		res.clearCookie("refreshToken");
 
 		res.status(200).json({ message: "Password updated successfully" });
+	} catch (e) {
+		next(e);
+	}
+};
+
+export const deleteUser = async (req, res, next) => {
+	try {
+		const user = req.user;
+
+		//delete user
+		const deletedUser = await deleteUserService(user.id);
+
+		if (!deletedUser)
+			return res.status(404).json({ message: "User not found" });
+
+		//remove all sessions, including the current one
+		//remove password reset attempts (if available)
+		await deleteAllRefreshTokenService(user.id);
+		await deletePassResetService(user.id);
+		res.clearCookie("accessToken");
+		res.clearCookie("refreshToken");
+
+		res.status(200).json({
+			message: "User deleted successfully",
+		});
 	} catch (e) {
 		next(e);
 	}
@@ -301,7 +354,12 @@ export const refreshUser = async (req, res, next) => {
 			process.env.JWT_ACCESS_TOKEN_SECRET,
 		);
 
-		const accessToken = await new SignJWT({ id: user.user_id, name: user.name, email: user.email, role: user.role })
+		const accessToken = await new SignJWT({
+			id: user.user_id,
+			name: user.name,
+			email: user.email,
+			role: user.role,
+		})
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
 			.setExpirationTime(process.env.JWT_ACCESS_EXPIRATION || "1h")
@@ -309,7 +367,7 @@ export const refreshUser = async (req, res, next) => {
 
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
+			secure: true,
 			sameSite: "lax",
 			maxAge: ms("1h"),
 		});
@@ -333,45 +391,50 @@ export const forgotPassword = async (req, res, next) => {
 	try {
 		const user = await getUserByEmailService(email);
 
-		if (user) {
-			const token = crypto.randomBytes(32).toString("hex");
-			const hashedToken = crypto
-				.createHash("sha256")
-				.update(token)
-				.digest("hex");
-
-			await deletePassResetService(user.id);
-
-			await storePassResetService(
-				user.id,
-				hashedToken,
-				new Date(Date.now() + ms("1h")),
-			);
-
-			//*IMPORTANT* Change reset url to actual website's reset user page.
-			const resetUrl = `http://localhost:5173/resetPass?token=${token}`;
-
-			const transporter = nodemailer.createTransport({
-				host: process.env.SMTP_HOST,
-				port: process.env.SMTP_PORT || 587,
-				secure: false,
-				auth: {
-					user: process.env.SMTP_USER,
-					pass: process.env.SMTP_PASSWORD,
-				},
-			});
-
-			await transporter.sendMail({
-				from: '"UMaps" <do-not-respond@umaps.com>',
-				to: email,
-				subject: "Password Reset Request",
-				html: `
-					<p>You requested a password reset.</p>
-					<p><a href="${resetUrl}">Click here to reset your password</a></p>
-					<p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>
-				`,
+		if (!user) {
+			return res.status(404).json({
+				message:
+					"User not found.",
 			});
 		}
+
+		const token = crypto.randomBytes(32).toString("hex");
+		const hashedToken = crypto
+			.createHash("sha256")
+			.update(token)
+			.digest("hex");
+
+		await deletePassResetService(user.id);
+
+		await storePassResetService(
+			user.id,
+			hashedToken,
+			new Date(Date.now() + ms("1h")),
+		);
+
+		//*IMPORTANT* Change reset url to actual website's reset user page.
+		const resetUrl = `http://localhost:5173/resetPass?token=${token}`;
+
+		const transporter = nodemailer.createTransport({
+			host: process.env.SMTP_HOST,
+			port: process.env.SMTP_PORT || 587,
+			secure: false,
+			auth: {
+				user: process.env.SMTP_USER,
+				pass: process.env.SMTP_PASSWORD,
+			},
+		});
+
+		await transporter.sendMail({
+			from: '"UMaps" <do-not-respond@umaps.com>',
+			to: email,
+			subject: "Password Reset Request",
+			html: `
+				<p>You requested a password reset.</p>
+				<p><a href="${resetUrl}">Click here to reset your password</a></p>
+				<p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>
+			`,
+		});
 
 		res.status(200).json({
 			message:
@@ -419,7 +482,9 @@ export const resetPassword = async (req, res, next) => {
 		if (await bcrypt.compare(password, oldHashedPass.password)) {
 			return res
 				.status(400)
-				.json({ message: "New password cannot be the same as the old password!" });
+				.json({
+					message: "New password cannot be the same as the old password!",
+				});
 		}
 
 		await updateUserPassService(user.user_id, hashedPass);

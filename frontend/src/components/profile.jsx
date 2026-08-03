@@ -11,10 +11,20 @@ const Profile = () => {
 	const profileAuth = useProfileStore(
 		(state) => state["profile"].authenticated,
 	);
+	const profileNameIsEditing = useProfileStore((state) => state["profile"].nameIsEditing);
+	const profileEmailIsEditing = useProfileStore((state) => state["profile"].emailIsEditing);
+	const profilePassIsEditing = useProfileStore((state) => state["profile"].passIsEditing);
+	const profileDeleteUserIsEditing = useProfileStore((state) => state["profile"].deleteUserIsEditing);
+
 	const profileHandleCreateAcc = useProfileStore(
 		(state) => state.handleCreateAcc,
 	);
 	const profileHandleLogin = useProfileStore((state) => state.handleLogin);
+
+	const profileHandleNameIsEditing = useProfileStore((state) => state.handleNameIsEditing);
+	const profileHandleEmailIsEditing = useProfileStore((state) => state.handleEmailIsEditing);
+	const profileHandlePassIsEditing = useProfileStore((state) => state.handlePassIsEditing);
+	const profileHandleDeleteUserIsEditing = useProfileStore((state) => state.handleDeleteUserIsEditing);
 
 	//useState
 	const profileHook = useProfile();
@@ -81,15 +91,15 @@ const Profile = () => {
 
 			{profileHook.toggle && profileAuth && data && (
 				<div className="flex flex-col">
-					<div className="bg-white w-60 h-40 md:w-70 md:h-50 lg:w-80 lg:h-60 my-2 rounded-lg flex flex-col gap-2 px-3 py-3">
+					<div className="bg-white w-60 h-55 md:w-70 md:h-60 lg:w-80 lg:h-65 my-2 rounded-lg flex flex-col gap-2 px-3 py-3">
 						<div className="flex flex-row w-full gap-2">
-							{profileHook.changeNameDisplay ? (
+							{profileNameIsEditing ? (
 								<>
 									<input
 										type="text"
-										value={profileHook.changeNameQuery}
+										value={profileHook.nameEditingQuery}
 										onChange={(e) =>
-											profileHook.setChangeNameQuery(e.target.value)
+											profileHook.setNameEditingQuery(e.target.value)
 										}
 										placeholder="Enter your new name"
 										id="changeName"
@@ -100,11 +110,11 @@ const Profile = () => {
 									<button
 										className="w-1/5 rounded-xl bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors text-[10px] md:text-[12px] lg:text-[13px]"
 										onClick={() => {
-											profileHook.setChangeNameDisplay(false);
+											profileHandleNameIsEditing(false);
 											profileHook.updateNameMutation.mutate({
-												fieldQuery: profileHook.changeNameQuery,
+												fieldQuery: profileHook.nameEditingQuery,
 											});
-											profileHook.setChangeNameQuery("");
+											profileHook.setNameEditingQuery("");
 										}}
 									>
 										Update
@@ -113,8 +123,8 @@ const Profile = () => {
 									<button
 										className="w-1/12 rounded-xl bg-[#dedede] text-red-500 hover:bg-[#c9c9c9] transition-colors text-[10px] md:text-[12px] lg:text-[13px]"
 										onClick={() => {
-											profileHook.setChangeNameDisplay(false);
-											profileHook.setChangeNameQuery("");
+											profileHandleNameIsEditing(false);
+											profileHook.setNameEditingQuery("");
 											profileHook.updateNameMutation.reset();
 										}}
 									>
@@ -130,7 +140,7 @@ const Profile = () => {
 									<button
 										className="w-1/5 rounded-xl bg-gray-300 text-[#1a73e8] hover:bg-[#c9c9c9] transition-colors text-[10px] md:text-[12px] lg:text-[13px]"
 										onClick={() => {
-											profileHook.setChangeNameDisplay(true);
+											profileHandleNameIsEditing(true);
 										}}
 									>
 										Change
@@ -151,18 +161,39 @@ const Profile = () => {
 
 						<div className="flex flex-col items-center">
 							<button
-								className="w-4/5 h-2/5 rounded-xl mt-2 py-1 md:py-2 lg:py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-gray-300 text-[#1a73e8] hover:bg-[#c9c9c9] transition-colors"
+								className="w-4/5 h-3/10 rounded-xl mt-2 py-1 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-gray-300 text-[#1a73e8] hover:bg-[#c9c9c9] transition-colors"
 								onClick={() => {
-									profileHook.setChangeEmailDisplay(
-										!profileHook.changeEmailDisplay,
+									profileHandleEmailIsEditing(
+										!profileEmailIsEditing,
 									);
+									profileHandlePassIsEditing(false);
+									profileHandleDeleteUserIsEditing(false);
+									profileHook.updateEmailMutation.reset();
+									profileHook.setEmailEditingQuery("");
+									profileHook.setConfirmEmailQuery("");
 								}}
 							>
-								Update Email
+								Change Email
 							</button>
 
 							<button
-								className="w-4/5 h-2/5 rounded-xl mt-2 py-1 md:py-2 lg:py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
+								className="w-4/5 h-3/10 rounded-xl mt-2 py-1 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-gray-300 text-red-500 hover:bg-[#c9c9c9] transition-colors"
+								onClick={() => {
+									profileHandlePassIsEditing(
+										!profilePassIsEditing,
+									);
+									profileHandleEmailIsEditing(false);
+									profileHandleDeleteUserIsEditing(false);
+									profileHook.updatePassMutation.reset();
+									profileHook.setPassEditingQuery("");
+									profileHook.setConfirmPassQuery("");
+								}}
+							>
+								Change Password
+							</button>
+
+							<button
+								className="w-4/5 h-3/10 rounded-xl mt-2 py-1 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
 								onClick={() => {
 									profileHook.logoutMutation.mutate();
 									profileHook.setToggle(false);
@@ -170,16 +201,32 @@ const Profile = () => {
 							>
 								Logout
 							</button>
+							
+							<button
+								className="w-4/5 h-3/10 rounded-xl mt-2 py-1 text-[12px] md:text-[13px] lg:text-[14px] font-bold bg-red-500 text-black hover:bg-red-600 transition-colors"
+								onClick={() => {
+									profileHandleDeleteUserIsEditing(
+										!profileDeleteUserIsEditing
+									);
+									profileHandleEmailIsEditing(false);
+									profileHandlePassIsEditing(false);
+									profileHook.deleteUserMutation.reset();
+									profileHook.setConfirmDeleteQuery("");
+								}}
+							>
+								Delete Account
+							</button>
+							
 						</div>
 					</div>
 
-					{profileHook.changeEmailDisplay && (
-						<div className="relative flex flex-col items-center rounded-xl w-full h-35 gap-3 bg-white">
+					{profileEmailIsEditing && (
+						<div className="relative flex flex-col items-center rounded-xl w-full h-30 gap-2 bg-white">
 							<input
 								type="text"
-								value={profileHook.changeEmailQuery}
+								value={profileHook.emailEditingQuery}
 								onChange={(e) =>
-									profileHook.setChangeEmailQuery(e.target.value)
+									profileHook.setEmailEditingQuery(e.target.value)
 								}
 								placeholder="Enter your new email"
 								id="changeEmail"
@@ -193,15 +240,21 @@ const Profile = () => {
 								onChange={(e) =>
 									profileHook.setConfirmEmailQuery(e.target.value)
 								}
-								placeholder="Confirm with current password"
-								id="changeEmail"
+								placeholder="Confirm with old password"
+								id="confirmEmail"
 								className="w-4/5 rounded-xl px-3 bg-[#f1f3f4] text-[12px] text-[#202124] placeholder-[#9aa0a6] transition-all"
 								style={{ fontFamily: "inherit" }}
 							/>
 
 							{profileHook.updateEmailMutation.isError && 
-								<p className="text-red-500">
+								<p className="text-red-500 text-[11px]">
 									{profileHook.updateEmailMutation.error.message}
+								</p>
+							}
+
+							{profileHook.updateEmailMutation.isSuccess && 
+								<p className="text-green-500 text-[11px]">
+									Email updated successfully!
 								</p>
 							}
 
@@ -209,12 +262,103 @@ const Profile = () => {
 								className="absolute bottom-3 w-2/5 rounded-xl bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
 								onClick={() => {
 									profileHook.updateEmailMutation.mutate({
-										fieldQuery: profileHook.changeEmailQuery,
+										fieldQuery: profileHook.emailEditingQuery,
 										password: profileHook.confirmEmailQuery
 									});
 								}}
 							>
 								Update
+							</button>
+						</div>
+					)}
+
+					{profilePassIsEditing && (
+						<div className="relative flex flex-col items-center rounded-xl w-full h-30 gap-2 bg-white">
+							<input
+								type="text"
+								value={profileHook.passEditingQuery}
+								onChange={(e) =>
+									profileHook.setPassEditingQuery(e.target.value)
+								}
+								placeholder="Enter your new password"
+								id="changePass"
+								className="w-4/5 rounded-xl px-3 mt-3 bg-[#f1f3f4] text-[12px] text-[#202124] placeholder-[#9aa0a6] transition-all"
+								style={{ fontFamily: "inherit" }}
+							/>
+
+							<input
+								type="text"
+								value={profileHook.confirmPassQuery}
+								onChange={(e) =>
+									profileHook.setConfirmPassQuery(e.target.value)
+								}
+								placeholder="Confirm with old password"
+								id="confirmPass"
+								className="w-4/5 rounded-xl px-3 bg-[#f1f3f4] text-[12px] text-[#202124] placeholder-[#9aa0a6] transition-all"
+								style={{ fontFamily: "inherit" }}
+							/>
+
+							{profileHook.updatePassMutation.isError && 
+								<p className="text-red-500 text-[11px]">
+									{profileHook.updatePassMutation.error.message}
+								</p>
+							}
+
+							<button
+								className="absolute bottom-3 w-2/5 rounded-xl bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
+								onClick={() => {
+									profileHook.updatePassMutation.mutate({
+										newPassword: profileHook.passEditingQuery,
+										password: profileHook.confirmPassQuery
+									});
+								}}
+							>
+								Update
+							</button>
+						</div>
+					)}
+
+					{profileDeleteUserIsEditing && (
+						<div className="relative flex flex-col items-center rounded-xl w-full h-30 bg-white">
+							<h1 
+								className="mt-1 font-bold"
+							>
+								FINAL WARNING!
+							</h1>
+
+							<h1 
+								className="font-bold"	
+							>
+								DO YOU WANT TO DELETE ACCOUNT?
+							</h1>
+
+							<input
+								type="text"
+								value={profileHook.confirmDeleteQuery}
+								onChange={(e) =>
+									profileHook.setConfirmDeleteQuery(e.target.value)
+								}
+								placeholder="Confirm with password"
+								id="confirmDelete"
+								className="w-4/5 rounded-xl px-3 mt-1 bg-[#f1f3f4] text-[12px] text-[#202124] placeholder-[#9aa0a6] transition-all"
+								style={{ fontFamily: "inherit" }}
+							/>
+
+							{profileHook.deleteUserMutation.isError && 
+								<p className="text-red-500 text-[11px] mt-1">
+									{profileHook.deleteUserMutation.error.message}
+								</p>
+							}
+
+							<button
+								className="absolute bottom-3 w-2/5 rounded-xl bg-red-500 text-black hover:bg-red-600 transition-colors"
+								onClick={() => {
+									profileHook.deleteUserMutation.mutate({
+										password: profileHook.confirmDeleteQuery
+									});
+								}}
+							>
+								Delete
 							</button>
 						</div>
 					)}
