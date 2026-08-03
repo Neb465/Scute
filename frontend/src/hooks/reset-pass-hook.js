@@ -9,7 +9,7 @@ export const useResetPass = () => {
 	const token = searchParams.get("token");
 
 	//Tanstack query
-	const { mutate, data, isPending, isError, error} =
+	const { mutate, data, isPending, isError, error, isSuccess} =
 		useResetPassMutation();
 
 	return {
@@ -19,6 +19,7 @@ export const useResetPass = () => {
 		isPending,
 		isError,
 		error: error ? error.message : "",
+		isSuccess,
     setNewPass,
 		resetPass: () => mutate({ token, newPass }),
 	};

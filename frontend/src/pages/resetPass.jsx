@@ -22,12 +22,22 @@ function ResetPass() {
             </p>
           }
 
+          {resetPassHook.isSuccess && 
+            <p className="text-green-500">
+              Successfully updated password!
+            </p>
+          }
+
           <div className="absolute top-40 w-1/3">
             <button 
               type="submit"
+              disabled={resetPassHook.isPending}
               className="rounded-xl px-3 h-11 w-full bg-blue-500 hover:bg-blue-600 text-white"
               onClick={(e) => {
                 e.preventDefault();
+
+                if (resetPassHook.isPending) return;
+
                 resetPassHook.resetPass();
               }}
             >

@@ -11,7 +11,10 @@ export const validatePassword = async (req, res, next) => {
 	const { password } = req.body;
 
 	try {
-		const hashedPass = await getPasswordByIdService(req.params.id);
+		//user should be authenticated by now
+		const user = req.user;
+
+		const hashedPass = await getPasswordByIdService(user.id);
 
 		if (!hashedPass) {
 			return res
@@ -22,6 +25,7 @@ export const validatePassword = async (req, res, next) => {
 		const isPassValid = await bcrypt.compare(password, hashedPass.password);
 
 		if (!isPassValid) {
+			//check
 			return res.status(401).json({ message: "Incorrect password" });
 		}
 

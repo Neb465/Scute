@@ -8,7 +8,7 @@ export const getAllUsersService = async () => {
 
 export const getUserByIdService = async (id) => {
 	const result = await db.oneOrNone(
-		"SELECT id, name, email, role FROM users where id = $1",
+		"SELECT id, name, email, role FROM users WHERE id = $1",
 		[id],
 	);
 	return result;
@@ -22,13 +22,22 @@ export const createUserService = async (name, email, hashedPass) => {
 	return result;
 };
 
-export const updateUserService = async (id, name, email) => {
+export const updateUserNameService = async (id, fieldQuery) => {
 	const result = await db.oneOrNone(
-		"UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING id, name, email",
-		[name, email.toLowerCase(), id],
+		"UPDATE users SET name = $2 WHERE id = $1 RETURNING id, name, email, role",
+		[id, fieldQuery],
 	);
 	return result;
 };
+
+export const updateUserEmailService = async (id, fieldQuery) => {
+	const result = await db.oneOrNone(
+		"UPDATE users SET email = $2 WHERE id = $1 RETURNING id, name, email, role",
+		[id, fieldQuery],
+	);
+
+	return result;
+}
 
 export const updateUserPassService = async (id, hashedPass) => {
 	await db.none(

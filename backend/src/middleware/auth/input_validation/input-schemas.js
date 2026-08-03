@@ -43,7 +43,7 @@ const pass_field = Joi.string()
 	}
 );
 
-const login_pass_field = Joi.string()
+const verify_pass_field = Joi.string()
 	.required()
 	.messages({
 		"string.base": "Password should be a type of text.",
@@ -73,7 +73,7 @@ const token_field = Joi.string()
 
 export const loginSchema = Joi.object({
 	email: email_field,
-	password: login_pass_field,
+	password: verify_pass_field,
 });
 
 export const registrationSchema = Joi.object({
@@ -105,3 +105,17 @@ export const searchSchema = Joi.object({
 	start: search_field,
 	goal: search_field
 })
+
+export const nameUpdateSchema = Joi.object({
+	fieldQuery: name_field,
+});
+
+export const emailUpdateSchema = Joi.object({
+	fieldQuery: email_field,
+	password: verify_pass_field,
+});
+
+export const passwordUpdateSchema = Joi.object({
+	password: verify_pass_field,
+	newPassword: pass_field,
+});

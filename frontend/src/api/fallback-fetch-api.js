@@ -1,34 +1,36 @@
-export const fallbackFetch = async (url, options) => {
-  options.credentials = "include";
+const createFetchError = (message, status) => {
+	const error = new Error(message);
+	error.status = status;
+	return error;
+};
 
-  let response = await fetch(url, options);
+export const fallbackFetch = async (url, options = {}) => {
+	const fetchOptions = { ...options, credentials: "include" };
 
-	//code for refreshing
-	if(response.status === 401){
-    const refetch = await fetch(
-      "http://localhost:8000/api/auth/refresh", {
-        method: "POST",
-        credentials: "include"
-      }
-    );
+	let response = await fetch(url, fetchOptions);
 
-    //*DOLATER* send user to login
-    if(refetch.status === 403){
-      e = new Error("Session expired. Re-login.");
-      e.status = 403;
-      throw e;
-    }
+	if (response.status === 401) {
+		const refetch = await fetch("http://localhost:8000/api/auth/refresh", {
+			method: "POST",
+			credentials: "include",
+		});
 
-    if(refetch.ok) {
-      response = await fetch(url, options);
-    }
-  }
+		if (refetch.status === 403) {
+			throw createFetchError("Session expired. Re-login.", 403);
+		}
+
+		if (!refetch.ok) {
+			throw createFetchError("Unable to refresh session.", refetch.status);
+		}
+
+		response = await fetch(url, fetchOptions);
+	}
 
 	const data = await response.json();
 
 	if (!response.ok) {
-		throw new Error(data.message || "Failed to fetch");
+		throw createFetchError(data.message || "Failed to fetch", response.status);
 	}
 
-  return data;
-}
+	return data;
+};

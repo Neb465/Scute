@@ -3,10 +3,12 @@ import {
 	deleteUserService,
 	getAllUsersService,
 	getUserByIdService,
-	updateUserService,
-	updateUserPassService
+	updateUserEmailService,
+	updateUserNameService,
+	updateUserPassService,
 } from "../models/UserModel.js";
 import bcrypt from "bcrypt";
+import { getPasswordByIdService } from "../models/AuthModel.js";
 
 export const getAllUsers = async (req, res, next) => {
 	try {
@@ -40,33 +42,13 @@ export const getUserByAuth = async (req, res, next) => {
 	try {
 		const user = req.user;
 
-		if(!user){
+		if (!user) {
 			return res.status(401).json({ message: "User not authenticated" });
 		}
 
 		res.status(200).json({
 			message: "User fetched successfully",
-			data: user
-		})
-	} catch (e) {
-		next(e);
-	}
-}
-
-//currently the only function with password validation. Maybe change in the future
-export const updateUser = async (req, res, next) => {
-	const { name, email, password } = req.body;
-
-	try {
-		const updatedUser = await updateUserService(req.params.id, name, email);
-
-		if (!updatedUser) {
-			return res.status(404).json({ message: "User not found" });
-		}
-
-		res.status(200).json({
-			message: "User updated successfully",
-			data: updatedUser,
+			data: user,
 		});
 	} catch (e) {
 		next(e);
@@ -75,7 +57,7 @@ export const updateUser = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
 	try {
-		const deletedUser = await deleteUserService(req.params.id);
+		const deletedUser = await deleteUserService(req.user.id);
 
 		if (!deletedUser) return res.status(404).json({ message: "User not found" });
 
