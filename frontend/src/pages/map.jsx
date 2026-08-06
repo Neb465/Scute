@@ -42,7 +42,7 @@ function Map() {
 				className="h-full w-full z-0"
 			>
 				<TileLayer
-					attribution="Made with 1000 tears"
+					attribution="Developed by Benjamin Nie"
 					url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
 					maxZoom={19}
 				/>

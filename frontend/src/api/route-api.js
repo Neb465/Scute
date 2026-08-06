@@ -3,7 +3,7 @@ import { fallbackFetch } from "./fallback-fetch-api";
 import { useProfileStore } from "../stores/useProfileStore";
 
 const handleSessionError = (e, setAuthentication, setLogin) => {
-	if (e.status === 401 || e.status === 403) {
+	if (e.status === 403) {
 		setAuthentication(false);
 		setLogin(true);
 	}
@@ -16,8 +16,6 @@ const fetchRoute = async ({ start, goal, setAuthentication, setLogin }) => {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ start, goal }),
 		});
-
-		setAuthentication(true);
 
 		return response.path;
 	} catch (e) {

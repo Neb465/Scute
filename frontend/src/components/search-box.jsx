@@ -54,7 +54,7 @@ const SearchBox = ({ getRoute, isError, error }) => {
 							startAutoFillResults.length > 0 &&
 							startAutoFillResults.map((result) => (
 								<button
-									key={result.display_name}
+									key={result.osm_id}
 									onMouseDownCapture={(e) => {
 										e.preventDefault();
 										handleAutoFillButton("start", result);
@@ -83,7 +83,7 @@ const SearchBox = ({ getRoute, isError, error }) => {
 							endAutoFillResults.length > 0 &&
 							endAutoFillResults.map((result) => (
 								<button
-									key={result.display_name}
+									key={result.osm_id}
 									onMouseDownCapture={(e) => {
 										e.preventDefault();
 										handleAutoFillButton("end", result);
@@ -96,7 +96,6 @@ const SearchBox = ({ getRoute, isError, error }) => {
 						}
 					</div>
 
-					{/* This is broken. Unsure whether you can put isError as a conditional here */}
 					{isError && (
 						<p className="text-red-800 mt-1 text-[9px] md:text-[11px] lg:text-[13px]">
 							{error}
@@ -107,11 +106,9 @@ const SearchBox = ({ getRoute, isError, error }) => {
 						<button
 							className="w-full rounded-xl py-3 text-[12px] md:text-[13px] lg:text-[14px] font-medium bg-[#1a73e8] text-white hover:bg-[#1765cc] transition-colors"
 							onClick={async () => {
-								if (startCoords.length > 0 && endCoords.length > 0) {
-									getRoute(startCoords, endCoords, profileHandleLogin);
-									handleFinalQuery("start", startQuery);
-									handleFinalQuery("end", endQuery);
-								}
+								getRoute(startCoords, endCoords, profileHandleLogin);
+								handleFinalQuery("start", startQuery);
+								handleFinalQuery("end", endQuery);
 							}}
 						>
 							Calculate Route

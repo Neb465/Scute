@@ -13,6 +13,8 @@ export const fetchAutoFill = async (req, res, next) => {
         limit: "5",
         viewbox: "-76.95163, 38.98113, -76.93339, 38.99774",
 		    bounded: "1",
+        dedupe: "1",
+        addressdetails: "1"
       }),
       {
         headers: {
