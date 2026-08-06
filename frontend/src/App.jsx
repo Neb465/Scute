@@ -1,5 +1,6 @@
 import Map from "./pages/map.jsx";
-import ResetPass from "./pages/resetPass.jsx";
+import { NotFound } from "./pages/not-found.jsx";
+import ResetPass from "./pages/reset-pass.jsx";
 import "./styles/tailwindauto.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router";
@@ -13,6 +14,7 @@ function App() {
 				<Routes>
 					<Route path="/" element={<Map />} />
 					<Route path="/resetPass" element={<ResetPass />}/>
+					<Route path="*" element={<NotFound />}/>
 				</Routes>
 			</BrowserRouter>
 		</QueryClientProvider>

@@ -47,7 +47,14 @@ function ResetPass() {
           
         </form>
       ) : (
-        <p>Invalid or missing security token.</p>
+        <div
+          className="flex flex-col items-center justify-center h-screen"
+        >
+          <p
+            className="font-bold text-2xl"
+          >
+            No reset token</p>
+        </div>
       )}
     </div>    
   );
