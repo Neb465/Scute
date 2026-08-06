@@ -10,7 +10,7 @@ import pathfinding from "./src/routes/pathfinding.js";
 
 import errorHandler from "./src/middleware/error-handler.js";
 import notFound from "./src/middleware/not-found.js";
-import { limiter } from "./src/middleware/rate-limiter.js";
+import { limiter, pathfindingLimiter } from "./src/middleware/rate-limiter.js";
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -27,7 +27,7 @@ app.use(cors({
 app.use("/api/users", limiter, user);
 app.use("/api/auth", limiter, auth);
 app.use("/api/geocode", geocode);
-app.use("/api/astar", pathfinding); //ADD LIMITER IN FUTURE
+app.use("/api/astar", pathfindingLimiter, pathfinding); //ADD LIMITER IN FUTURE
 
 //Error Handler
 app.use(notFound);

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import { useProfileStore } from "../stores/useProfileStore";
 import { fallbackFetch } from "./fallback-fetch-api";
+import { useEffect } from "react";
 
 const handleSessionError = (e, setAuthenticated, setLogin) => {
 	if (e.status === 403) {
@@ -16,11 +17,8 @@ const fetchUserData = async (setAuthenticated, setLogin) => {
 			method: "GET",
 		});
 
-		setAuthenticated(true);
-
 		return data.data;
 	} catch (e) {
-		handleSessionError(e, setAuthenticated, setLogin);
 		throw e;
 	}
 };
@@ -214,13 +212,31 @@ export const useFetchUser = () => {
 	const setAuth = useProfileStore((state) => state.handleAuthenticated);
 	const setLogin = useProfileStore((state) => state.handleLogin);
 
-	return useQuery({
+	const query = useQuery({
 		queryKey: ["userDataFetch"],
 		queryFn: () => fetchUserData(setAuth, setLogin),
 		staleTime: 1000 * 60 * 5, //5 minutes
 		refetchOnWindowFocus: false,
 		retry: false,
 	});
+
+	useEffect(() => {
+		if (query.isSuccess && query.data) {
+      setAuth(true);
+    }
+    
+    // Case 2: Fetch failed (User logged out / 403)
+    if (query.isError) {
+      const errorStatus = query.error?.status;
+      
+      if (errorStatus === 403) {
+        setAuth(false);
+        setLogin(true); // Directs them to login layout safely
+      }
+    }
+	}, [query.data, query.isSuccess, query.isError, query.error, setAuth, setLogin]);
+
+	return query;
 };
 
 export const useRegisterUserMutation = () => {
