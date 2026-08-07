@@ -5,7 +5,7 @@ const pgp = pgPromise({});
 const username = process.env.DB_USER
 const pass = process.env.DB_PASSWORD
 const host = process.env.DB_HOST
-const port = process.env.DB_PORT || 7676
+const port = process.env.DB_PORT || 5432
 const database = process.env.DB_NAME
 
 const config = {
