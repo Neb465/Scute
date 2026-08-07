@@ -426,7 +426,7 @@ export const forgotPassword = async (req, res, next) => {
 		});
 
 		await transporter.sendMail({
-			from: '"UMaps" <do-not-respond@umaps.com>',
+			from: '"Scute" <do-not-respond@scute.com>',
 			to: email,
 			subject: "Password Reset Request",
 			html: `

@@ -43,7 +43,7 @@ export const updateUserNameService = async (id, fieldQuery) => {
 export const updateUserEmailService = async (id, fieldQuery) => {
 	const result = await db.oneOrNone(
 		"UPDATE users SET email = $2 WHERE id = $1 RETURNING id, name, email, role",
-		[id, fieldQuery],
+		[id, fieldQuery.toLowerCase()],
 	);
 
 	return result;

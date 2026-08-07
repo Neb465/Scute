@@ -18,7 +18,7 @@ export const fetchAutoFill = async (req, res, next) => {
       }),
       {
         headers: {
-          "User-Agent": "UMaps"
+          "User-Agent": "Scute"
         }
       }
     );
