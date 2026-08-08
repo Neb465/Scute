@@ -31,5 +31,6 @@ def calc_path():
   
   return jsonify({"path": path})
 
-if __name__ == "__main__":
-  app.run(host="0.0.0.0", port=5001)
+#For local testing only
+# if __name__ == "__main__":
+#   app.run(host="0.0.0.0", port=5001)
