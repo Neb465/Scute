@@ -4,13 +4,15 @@ const createFetchError = (message, status) => {
 	return error;
 };
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 export const fallbackFetch = async (url, options = {}) => {
 	const fetchOptions = { ...options, credentials: "include" };
 
 	let response = await fetch(url, fetchOptions);
 
 	if (response.status === 401) {
-		const refetch = await fetch("http://localhost:8000/api/auth/refresh", {
+		const refetch = await fetch(`${API_URL}/api/auth/refresh`, {
 			method: "POST",
 			credentials: "include",
 		});

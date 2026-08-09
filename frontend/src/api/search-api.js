@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useMapStore } from "../stores/useMapStore";
 import { useProfileStore } from "../stores/useProfileStore";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const useDebounce = (value) => {
   const [debounceValue, setDebounceValue] = useState(value);
 
@@ -19,7 +21,7 @@ const useDebounce = (value) => {
 
 const renderAutoFill = async (query) => {
   let response = await fetch(
-    "http://localhost:8000/api/geocode?" +
+    `${API_URL}/api/geocode?` +
     new URLSearchParams({
       q: query,
     }),

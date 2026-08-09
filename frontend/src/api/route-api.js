@@ -9,9 +9,11 @@ const handleSessionError = (e, setAuthentication, setLogin) => {
 	}
 };
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const fetchRoute = async ({ start, goal, setAuthentication, setLogin }) => {
 	try {
-		const response = await fallbackFetch("http://localhost:8000/api/astar", {
+		const response = await fallbackFetch(`${API_URL}/api/astar`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ start, goal }),

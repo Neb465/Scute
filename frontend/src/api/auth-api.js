@@ -4,6 +4,8 @@ import { useProfileStore } from "../stores/useProfileStore";
 import { fallbackFetch } from "./fallback-fetch-api";
 import { useEffect } from "react";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const handleSessionError = (e, setAuthenticated, setLogin) => {
 	if (e.status === 403) {
 		setAuthenticated(false);
@@ -13,7 +15,7 @@ const handleSessionError = (e, setAuthenticated, setLogin) => {
 
 const fetchUserData = async (setAuthenticated, setLogin) => {
 	try {
-		const data = await fallbackFetch("http://localhost:8000/api/users/me", {
+		const data = await fallbackFetch(`${API_URL}/api/users/me`, {
 			method: "GET",
 		});
 
@@ -24,7 +26,7 @@ const fetchUserData = async (setAuthenticated, setLogin) => {
 };
 
 const registerUser = async ({ name, email, password }) => {
-	const response = await fetch("http://localhost:8000/api/auth/register", {
+	const response = await fetch(`${API_URL}/api/auth/register`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
@@ -45,7 +47,7 @@ const registerUser = async ({ name, email, password }) => {
 
 //cannot use fallbackfetch because user isn't authenticated at this point
 const loginUser = async ({ name, email, password }) => {
-	const response = await fetch("http://localhost:8000/api/auth/login", {
+	const response = await fetch(`${API_URL}/api/auth/login`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
@@ -67,7 +69,7 @@ const loginUser = async ({ name, email, password }) => {
 //cannot use fallbackfetch because user login state should still be wiped even if auth somehow fails
 //(e.g. access token runs out and the user tries logging out)
 const logoutUser = async () => {
-	const response = await fetch("http://localhost:8000/api/auth/logout", {
+	const response = await fetch(`${API_URL}/api/auth/logout`, {
 		method: "POST",
 		credentials: "include",
 	});
@@ -82,7 +84,7 @@ const logoutUser = async () => {
 };
 
 const forgotPassword = async ({ email }) => {
-	const response = await fetch("http://localhost:8000/api/auth/forgot-pass", {
+	const response = await fetch(`${API_URL}/api/auth/forgot-pass`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
@@ -101,7 +103,7 @@ const forgotPassword = async ({ email }) => {
 };
 
 const resetPassword = async ({ token, newPass }) => {
-	const response = await fetch("http://localhost:8000/api/auth/reset-pass", {
+	const response = await fetch(`${API_URL}/api/auth/reset-pass`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
@@ -122,7 +124,7 @@ const resetPassword = async ({ token, newPass }) => {
 
 const updateName = async ({ fieldQuery, setAuthenticated, setLogin }) => {
 	try {
-		const data = await fallbackFetch(`http://localhost:8000/api/auth/me/name`, {
+		const data = await fallbackFetch(`${API_URL}/api/auth/me/name`, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -145,7 +147,7 @@ const updateEmail = async ({
 }) => {
 	try {
 		const data = await fallbackFetch(
-			`http://localhost:8000/api/auth/me/email`,
+			`${API_URL}/api/auth/me/email`,
 			{
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
@@ -171,7 +173,7 @@ const updatePass = async ({
 }) => {
 	try {
 		const data = await fallbackFetch(
-			`http://localhost:8000/api/auth/me/password`,
+			`${API_URL}/api/auth/me/password`,
 			{
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
@@ -192,7 +194,7 @@ const updatePass = async ({
 const deleteUser = async ({ password, setAuthenticated, setLogin }) => {
 	try {
 		const data = await fallbackFetch(
-			`http://localhost:8000/api/auth/me`,
+			`${API_URL}/api/auth/me`,
 			{
 				method: "DELETE",
 				headers: { "Content-Type": "application/json" },

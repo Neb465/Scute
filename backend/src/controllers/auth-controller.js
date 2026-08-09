@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import ms from "ms";
-import nodemailer from "nodemailer";
+import { Resend } from 'resend';
 import {
 	deleteAllRefreshTokenService,
 	deletePassResetService,
@@ -412,28 +412,42 @@ export const forgotPassword = async (req, res, next) => {
 			new Date(Date.now() + ms("1h")),
 		);
 
+		const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173"
 		//*IMPORTANT* Change reset url to actual website's reset user page.
-		const resetUrl = `http://localhost:5173/resetPass?token=${token}`;
+		const resetUrl = `${FRONTEND_URL}/resetPass?token=${token}`;
 
-		const transporter = nodemailer.createTransport({
-			host: process.env.SMTP_HOST,
-			port: process.env.SMTP_PORT || 587,
-			secure: false,
-			auth: {
-				user: process.env.SMTP_USER,
-				pass: process.env.SMTP_PASSWORD,
-			},
-		});
+		// const transporter = nodemailer.createTransport({
+		// 	host: process.env.SMTP_HOST,
+		// 	port: process.env.SMTP_PORT || 587,
+		// 	secure: false,
+		// 	auth: {
+		// 		user: process.env.SMTP_USER,
+		// 		pass: process.env.SMTP_PASSWORD,
+		// 	},
+		// });
 
-		await transporter.sendMail({
-			from: '"Scute" <do-not-respond@scute.com>',
+		// await transporter.sendMail({
+		// 	from: '"Scute" <do-not-respond@scute.com>',
+		// 	to: email,
+		// 	subject: "Password Reset Request",
+		// 	html: `
+		// 		<p>You requested a password reset.</p>
+		// 		<p><a href="${resetUrl}">Click here to reset your password</a></p>
+		// 		<p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>
+		// 	`,
+		// });
+
+		const resend = new Resend(process.env.RESEND_API_KEY);
+
+		resend.emails.send({
+			from: "do-not-respond@scute.onrender.com",
 			to: email,
 			subject: "Password Reset Request",
 			html: `
 				<p>You requested a password reset.</p>
 				<p><a href="${resetUrl}">Click here to reset your password</a></p>
 				<p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>
-			`,
+			`
 		});
 
 		res.status(200).json({
