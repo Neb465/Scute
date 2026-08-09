@@ -93,14 +93,14 @@ export const loginUser = async (req, res, next) => {
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
 			secure: true,
-			sameSite: "lax",
+			sameSite: "none",
 			maxAge: ms("1h"),
 		});
 
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
 			secure: true,
-			sameSite: "lax",
+			sameSite: "none",
 			maxAge: ms("7d"),
 		});
 
@@ -188,7 +188,7 @@ export const updateUserName = async (req, res, next) => {
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
 			secure: true,
-			sameSite: "lax",
+			sameSite: "none",
 			maxAge: ms("1h"),
 		});
 
@@ -237,7 +237,7 @@ export const updateUserEmail = async (req, res, next) => {
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
 			secure: true,
-			sameSite: "lax",
+			sameSite: "none",
 			maxAge: ms("1h"),
 		});
 
@@ -368,7 +368,7 @@ export const refreshUser = async (req, res, next) => {
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
 			secure: true,
-			sameSite: "lax",
+			sameSite: "none",
 			maxAge: ms("1h"),
 		});
 
@@ -412,7 +412,7 @@ export const forgotPassword = async (req, res, next) => {
 			new Date(Date.now() + ms("1h")),
 		);
 
-		const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173"
+		const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173";
 		//*IMPORTANT* Change reset url to actual website's reset user page.
 		const resetUrl = `${FRONTEND_URL}/resetPass?token=${token}`;
 
