@@ -95,6 +95,7 @@ export const loginUser = async (req, res, next) => {
 			secure: true,
 			sameSite: "none",
 			maxAge: ms("1h"),
+			path: "/"
 		});
 
 		res.cookie("refreshToken", refreshToken, {
@@ -102,6 +103,7 @@ export const loginUser = async (req, res, next) => {
 			secure: true,
 			sameSite: "none",
 			maxAge: ms("7d"),
+			path: "/"
 		});
 
 		await storeRefreshTokenService(
@@ -125,6 +127,21 @@ export const loginUser = async (req, res, next) => {
 
 export const logoutUser = async (req, res, next) => {
 	try {
+		res.clearCookie("accessToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
+		res.clearCookie("refreshToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
+
 		const refreshToken = req.cookies.refreshToken;
 
 		const hashedToken = await crypto
@@ -138,9 +155,6 @@ export const logoutUser = async (req, res, next) => {
 
 		const { payload } = await jwtVerify(refreshToken, refreshSecret);
 		const userId = payload.id;
-
-		res.clearCookie("accessToken");
-		res.clearCookie("refreshToken");
 
 		await deleteRefreshTokenService(userId, hashedToken);
 
@@ -190,6 +204,7 @@ export const updateUserName = async (req, res, next) => {
 			secure: true,
 			sameSite: "none",
 			maxAge: ms("1h"),
+			path: "/"
 		});
 
 		res.status(200).json({
@@ -239,6 +254,7 @@ export const updateUserEmail = async (req, res, next) => {
 			secure: true,
 			sameSite: "none",
 			maxAge: ms("1h"),
+			path: "/"
 		});
 
 		res.status(200).json({
@@ -271,8 +287,20 @@ export const updateUserPassword = async (req, res, next) => {
 
 		//invalidate all sessions, including the current one
 		await deleteAllRefreshTokenService(user.id);
-		res.clearCookie("accessToken");
-		res.clearCookie("refreshToken");
+		res.clearCookie("accessToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
+		res.clearCookie("refreshToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
 
 		res.status(200).json({ message: "Password updated successfully" });
 	} catch (e) {
@@ -294,8 +322,20 @@ export const deleteUser = async (req, res, next) => {
 		//remove password reset attempts (if available)
 		await deleteAllRefreshTokenService(user.id);
 		await deletePassResetService(user.id);
-		res.clearCookie("accessToken");
-		res.clearCookie("refreshToken");
+		res.clearCookie("accessToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
+		res.clearCookie("refreshToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
 
 		res.status(200).json({
 			message: "User deleted successfully",
@@ -345,8 +385,20 @@ export const refreshUser = async (req, res, next) => {
 		if (expired) {
 			await deleteRefreshTokenService(user.user_id, hashedRefreshToken);
 
-			res.clearCookie("accessToken");
-			res.clearCookie("refreshToken");
+			res.clearCookie("accessToken", {
+				httpOnly: true,
+				secure: true,
+				sameSite: "none",
+				maxAge: ms("1h"),
+				path: "/"
+			});
+			res.clearCookie("refreshToken", {
+				httpOnly: true,
+				secure: true,
+				sameSite: "none",
+				maxAge: ms("1h"),
+				path: "/"
+			});
 			return res.status(403).json({ message: "Refresh token expired" });
 		}
 
@@ -370,6 +422,7 @@ export const refreshUser = async (req, res, next) => {
 			secure: true,
 			sameSite: "none",
 			maxAge: ms("1h"),
+			path: "/"
 		});
 
 		return res.status(200).json({
@@ -506,8 +559,20 @@ export const resetPassword = async (req, res, next) => {
 		await deletePassResetService(user.user_id);
 		await deleteAllRefreshTokenService(user.user_id);
 
-		res.clearCookie("accessToken");
-		res.clearCookie("refreshToken");
+		res.clearCookie("accessToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
+		res.clearCookie("refreshToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
 
 		res.status(200).json({ message: "User updated successfully" });
 	} catch (e) {
