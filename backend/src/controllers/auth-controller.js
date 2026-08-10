@@ -465,9 +465,9 @@ export const forgotPassword = async (req, res, next) => {
 			new Date(Date.now() + ms("1h")),
 		);
 
-		const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173";
+		const frontEndURL = process.env.FRONTEND_URL || "http://localhost:5173";
 		//*IMPORTANT* Change reset url to actual website's reset user page.
-		const resetUrl = `${FRONTEND_URL}/resetPass?token=${token}`;
+		const resetUrl = `${frontEndURL}/resetPass?token=${token}`;
 
 		// const transporter = nodemailer.createTransport({
 		// 	host: process.env.SMTP_HOST,
