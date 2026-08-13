@@ -69,10 +69,11 @@ export const storeRefreshTokenService = async (
 	user_id,
 	tokenHash,
 	expiration,
+	session_id
 ) => {
 	await db.none(
-		"INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)",
-		[user_id, tokenHash, expiration],
+		"INSERT INTO refresh_tokens (user_id, token_hash, expires_at, session_id) VALUES ($1, $2, $3, $4)",
+		[user_id, tokenHash, expiration, session_id],
 	);
 };
 

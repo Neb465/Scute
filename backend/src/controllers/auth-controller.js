@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import ms from "ms";
-import { Resend } from 'resend';
+import { google } from "googleapis";
 import {
 	deleteAllRefreshTokenService,
 	deletePassResetService,
@@ -19,6 +19,19 @@ import {
 	updateUserPassService,
 } from "../models/AuthModel.js";
 import { jwtVerify, SignJWT } from "jose";
+
+//Used only for reset password requests, where the gmail api sends an email to the user
+const oauth2Client = new google.auth.OAuth2({
+	client_id: process.env.GOOGLE_API_CLIENTID,
+	client_secret: process.env.GOOGLE_API_CLIENTSECRET,
+	redirectUri:"https://developers.google.com/oauthplayground"
+});
+
+oauth2Client.setCredentials({
+	refresh_token: process.env.GOOGLE_API_REFRESH
+});
+
+const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
 export const registerUser = async (req, res, next) => {
 	const { name, email, password } = req.body;
@@ -60,6 +73,8 @@ export const loginUser = async (req, res, next) => {
 			return res.status(401).json({ message: "Incorrect password" });
 		}
 
+		const sessionId = crypto.randomUUID();
+
 		const accessSecret = new TextEncoder().encode(
 			process.env.JWT_ACCESS_TOKEN_SECRET,
 		);
@@ -73,6 +88,7 @@ export const loginUser = async (req, res, next) => {
 			name: user.name,
 			email: user.email,
 			role: user.role,
+			sid: sessionId
 		})
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
@@ -110,12 +126,14 @@ export const loginUser = async (req, res, next) => {
 			user.id,
 			hashedRefreshToken,
 			new Date(Date.now() + ms("7d")),
+			sessionId
 		);
 
 		return res.status(200).json({
 			message: "Logged in successfully",
 			data: {
 				id: user.id,
+				sid: sessionId,
 				name: user.name,
 				email: user.email,
 			},
@@ -184,6 +202,8 @@ export const updateUserName = async (req, res, next) => {
 			return res.status(404).json({ message: "User not found" });
 		}
 
+		const sessionId = crypto.randomUUID();
+
 		const accessSecret = new TextEncoder().encode(
 			process.env.JWT_ACCESS_TOKEN_SECRET,
 		);
@@ -193,6 +213,7 @@ export const updateUserName = async (req, res, next) => {
 			name: updatedUser.name,
 			email: updatedUser.email,
 			role: updatedUser.role,
+			sid: sessionId
 		})
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
@@ -234,6 +255,8 @@ export const updateUserEmail = async (req, res, next) => {
 			return res.status(404).json({ message: "User not found" });
 		}
 
+		const sessionId = crypto.randomUUID();
+
 		const accessSecret = new TextEncoder().encode(
 			process.env.JWT_ACCESS_TOKEN_SECRET,
 		);
@@ -243,6 +266,7 @@ export const updateUserEmail = async (req, res, next) => {
 			name: updatedUser.name,
 			email: updatedUser.email,
 			role: updatedUser.role,
+			sid: sessionId
 		})
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
@@ -402,6 +426,8 @@ export const refreshUser = async (req, res, next) => {
 			return res.status(403).json({ message: "Refresh token expired" });
 		}
 
+		const sessionId = crypto.randomUUID();
+
 		const accessSecret = new TextEncoder().encode(
 			process.env.JWT_ACCESS_TOKEN_SECRET,
 		);
@@ -411,6 +437,7 @@ export const refreshUser = async (req, res, next) => {
 			name: user.name,
 			email: user.email,
 			role: user.role,
+			sid: sessionId
 		})
 			.setProtectedHeader({ alg: "HS256" })
 			.setIssuedAt()
@@ -429,6 +456,7 @@ export const refreshUser = async (req, res, next) => {
 			message: "Cookie refreshed successfully",
 			data: {
 				id: user.user_id,
+				sid: sessionId,
 				name: user.name,
 				email: user.email,
 			},
@@ -490,18 +518,42 @@ export const forgotPassword = async (req, res, next) => {
 		// 	`,
 		// });
 
-		const resend = new Resend(process.env.RESEND_API_KEY);
+		// const resend = new Resend(process.env.RESEND_API_KEY);
 
-		resend.emails.send({
-			from: "do-not-respond@scute.onrender.com",
-			to: email,
-			subject: "Password Reset Request",
-			html: `
-				<p>You requested a password reset.</p>
-				<p><a href="${resetUrl}">Click here to reset your password</a></p>
-				<p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>
-			`
-		});
+		// resend.emails.send({
+		// 	from: "do-not-respond@scute.onrender.com",
+		// 	to: email,
+		// 	subject: "Password Reset Request",
+		// 	html: `
+		// 		<p>You requested a password reset.</p>
+		// 		<p><a href="${resetUrl}">Click here to reset your password</a></p>
+		// 		<p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>
+		// 	`
+		// });
+
+		const messageParts = [
+			'From: Scute <scutedonotreply@gmail.com>',
+			`To: ${email}`,
+			'Content-Type: text/html; charset=utf-8',
+			'Subject: Reset Password Request',
+			'',
+			'<p>You requested a password reset.</p>',
+			`<p><a href="${resetUrl}">Click here to reset your password</a></p>`,
+			"<p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>"
+		];
+		const message = messageParts.join('\n');
+
+		// The body needs to be base64url encoded.
+		const encodedMessage = Buffer.from(message)
+			.toString('base64')
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=+$/, '');
+
+		await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: { raw: encodedMessage },
+    });
 
 		res.status(200).json({
 			message:

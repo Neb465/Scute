@@ -17,6 +17,7 @@ export const authenticate = async (req, res, next) => {
 			name: payload.name,
 			email: payload.email,
 			role: payload.role,
+			sid: payload.sid
 		};
 
 		next();
