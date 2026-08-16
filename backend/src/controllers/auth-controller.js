@@ -19,6 +19,7 @@ import {
 	updateUserPassService,
 } from "../models/AuthModel.js";
 import { jwtVerify, SignJWT } from "jose";
+import { generateCsrfToken } from "../middleware/auth/double-csrf.js";
 
 //Used only for reset password requests, where the gmail api sends an email to the user
 const oauth2Client = new google.auth.OAuth2({
@@ -129,6 +130,16 @@ export const loginUser = async (req, res, next) => {
 			sessionId
 		);
 
+		req.user = {
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			role: user.role,
+			sid: sessionId,
+		};
+
+		const csrfToken = generateCsrfToken(req, res);
+
 		return res.status(200).json({
 			message: "Logged in successfully",
 			data: {
@@ -158,6 +169,12 @@ export const logoutUser = async (req, res, next) => {
 			sameSite: "none",
 			maxAge: ms("1h"),
 			path: "/"
+		});
+		res.clearCookie("__Host-psifi.x-csrf-token", {
+			sameSite: "strict",
+			path: "/",
+			secure: true,
+			httpOnly: true,
 		});
 
 		const refreshToken = req.cookies.refreshToken;
@@ -228,6 +245,13 @@ export const updateUserName = async (req, res, next) => {
 			path: "/"
 		});
 
+		req.user = {
+			...req.user,
+			sid: sessionId
+		}
+
+		const csrfToken = generateCsrfToken(req, res);
+
 		res.status(200).json({
 			message: "User updated successfully",
 			data: updatedUser,
@@ -281,6 +305,13 @@ export const updateUserEmail = async (req, res, next) => {
 			path: "/"
 		});
 
+		req.user = {
+			...req.user,
+			sid: sessionId
+		}
+
+		const csrfToken = generateCsrfToken(req, res);
+
 		res.status(200).json({
 			message: "User updated successfully",
 			data: updatedUser,
@@ -325,6 +356,12 @@ export const updateUserPassword = async (req, res, next) => {
 			maxAge: ms("1h"),
 			path: "/"
 		});
+		res.clearCookie("__Host-psifi.x-csrf-token", {
+			sameSite: "strict",
+			path: "/",
+			secure: true,
+			httpOnly: true,
+		});
 
 		res.status(200).json({ message: "Password updated successfully" });
 	} catch (e) {
@@ -336,16 +373,17 @@ export const deleteUser = async (req, res, next) => {
 	try {
 		const user = req.user;
 
+		//remove all sessions, including the current one
+		//remove password reset attempts (if available)
+		await deleteAllRefreshTokenService(user.id);
+		await deletePassResetService(user.id);
+
 		//delete user
 		const deletedUser = await deleteUserService(user.id);
 
 		if (!deletedUser)
 			return res.status(404).json({ message: "User not found" });
-
-		//remove all sessions, including the current one
-		//remove password reset attempts (if available)
-		await deleteAllRefreshTokenService(user.id);
-		await deletePassResetService(user.id);
+		
 		res.clearCookie("accessToken", {
 			httpOnly: true,
 			secure: true,
@@ -359,6 +397,12 @@ export const deleteUser = async (req, res, next) => {
 			sameSite: "none",
 			maxAge: ms("1h"),
 			path: "/"
+		});
+		res.clearCookie("__Host-psifi.x-csrf-token", {
+			sameSite: "strict",
+			path: "/",
+			secure: true,
+			httpOnly: true,
 		});
 
 		res.status(200).json({
@@ -423,6 +467,12 @@ export const refreshUser = async (req, res, next) => {
 				maxAge: ms("1h"),
 				path: "/"
 			});
+			res.clearCookie("__Host-psifi.x-csrf-token", {
+				sameSite: "strict",
+				path: "/",
+				secure: true,
+				httpOnly: true,
+			});
 			return res.status(403).json({ message: "Refresh token expired" });
 		}
 
@@ -444,6 +494,13 @@ export const refreshUser = async (req, res, next) => {
 			.setExpirationTime(process.env.JWT_ACCESS_EXPIRATION || "1h")
 			.sign(accessSecret);
 
+		res.clearCookie("__Host-psifi.x-csrf-token", {
+			sameSite: "strict",
+			path: "/",
+			secure: true,
+			httpOnly: true,
+		});
+
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
 			secure: true,
@@ -451,6 +508,16 @@ export const refreshUser = async (req, res, next) => {
 			maxAge: ms("1h"),
 			path: "/"
 		});
+
+		req.user = {
+			id: user.user_id,
+			name: user.name,
+			email: user.email,
+			role: user.role,
+			sid: sessionId,
+		};
+
+		const csrfToken = generateCsrfToken(req, res);
 
 		return res.status(200).json({
 			message: "Cookie refreshed successfully",

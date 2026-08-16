@@ -12,6 +12,7 @@ import pathfinding from "./src/routes/pathfinding.js";
 import errorHandler from "./src/middleware/error-handler.js";
 import notFound from "./src/middleware/not-found.js";
 import { limiter, pathfindingLimiter } from "./src/middleware/rate-limiter.js";
+import { identifyUser } from "./src/middleware/auth/identification-handler.js";
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -23,7 +24,8 @@ app.use(helmet());
 app.use(cors({
 	origin: process.env.CORS_ORIGIN || "http://localhost:5173",
 	credentials: true
-})); //change later to only allow frontend to make requests
+}));
+app.use(identifyUser);
 
 //Routes
 app.use("/api/users", limiter, user);

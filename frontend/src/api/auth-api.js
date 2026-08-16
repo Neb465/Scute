@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useProfileStore } from "../stores/useProfileStore";
 import { fallbackFetch } from "./fallback-fetch-api";
 import { useEffect } from "react";
+import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -124,9 +125,14 @@ const resetPassword = async ({ token, newPass }) => {
 
 const updateName = async ({ fieldQuery, setAuthenticated, setLogin }) => {
 	try {
+		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+
 		const data = await fallbackFetch(`${API_URL}/api/auth/me/name`, {
 			method: "PUT",
-			headers: { "Content-Type": "application/json" },
+			headers: { 
+				"Content-Type": "application/json",
+				"x-csrf-token": xsrfToken
+			},
 			body: JSON.stringify({
 				fieldQuery: fieldQuery,
 			}),
@@ -146,11 +152,16 @@ const updateEmail = async ({
 	setLogin,
 }) => {
 	try {
+		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+		
 		const data = await fallbackFetch(
 			`${API_URL}/api/auth/me/email`,
 			{
 				method: "PUT",
-				headers: { "Content-Type": "application/json" },
+				headers: { 
+					"Content-Type": "application/json",
+					"x-csrf-token": xsrfToken
+				},
 				body: JSON.stringify({
 					fieldQuery: fieldQuery,
 					password: password,
@@ -172,11 +183,16 @@ const updatePass = async ({
 	setLogin,
 }) => {
 	try {
+		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+
 		const data = await fallbackFetch(
 			`${API_URL}/api/auth/me/password`,
 			{
 				method: "PUT",
-				headers: { "Content-Type": "application/json" },
+				headers: { 
+					"Content-Type": "application/json",
+					"x-csrf-token": xsrfToken
+				},
 				body: JSON.stringify({
 					newPassword: newPassword,
 					password: password,
@@ -193,11 +209,16 @@ const updatePass = async ({
 
 const deleteUser = async ({ password, setAuthenticated, setLogin }) => {
 	try {
+		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+
 		const data = await fallbackFetch(
 			`${API_URL}/api/auth/me`,
 			{
 				method: "DELETE",
-				headers: { "Content-Type": "application/json" },
+				headers: { 
+					"Content-Type": "application/json",
+					"x-csrf-token": xsrfToken
+				},
 				body: JSON.stringify({
 					password: password,
 				}),

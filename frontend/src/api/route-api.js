@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { fallbackFetch } from "./fallback-fetch-api";
 import { useProfileStore } from "../stores/useProfileStore";
+import Cookies from 'js-cookie';
 
 const handleSessionError = (e, setAuthentication, setLogin) => {
 	if (e.status === 403) {
@@ -13,9 +14,14 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 const fetchRoute = async ({ start, goal, setAuthentication, setLogin }) => {
 	try {
+		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+
 		const response = await fallbackFetch(`${API_URL}/api/astar`, {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers: { 
+				"Content-Type": "application/json",
+				"x-csrf-token": xsrfToken
+			},
 			body: JSON.stringify({ start, goal }),
 		});
 
