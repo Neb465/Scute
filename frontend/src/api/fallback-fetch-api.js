@@ -1,4 +1,4 @@
-import Cookies from 'js-cookie';
+import { csrfToken } from '../stores/useCsrfStore';
 
 const createFetchError = (message, status) => {
 	const error = new Error(message);
@@ -23,11 +23,11 @@ export const fallbackFetch = async (url, options = {}) => {
 		});
 
 		if (refetch.status === 403) {
-			throw createFetchError("Session expired. Re-login.", 403);
 			await fetch(`${API_URL}/api/auth/logout`, {
 				method: "POST",
 				credentials: "include",
 			});
+			throw createFetchError("Session expired. Re-login.", 403);
 		}
 
 		if (!refetch.ok) {
@@ -38,7 +38,10 @@ export const fallbackFetch = async (url, options = {}) => {
 			throw createFetchError("Unable to refresh session.", refetch.status);
 		}
 
-		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+		const refreshData = await refetch.json();
+		csrfToken.set(refreshData.data.csrfToken);
+
+		const xsrfToken = csrfToken.get();
 
 		const retryOptions = { 
 			...fetchOptions, 

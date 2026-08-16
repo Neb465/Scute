@@ -147,6 +147,7 @@ export const loginUser = async (req, res, next) => {
 				sid: sessionId,
 				name: user.name,
 				email: user.email,
+				csrfToken: csrfToken
 			},
 		});
 	} catch (e) {
@@ -254,7 +255,10 @@ export const updateUserName = async (req, res, next) => {
 
 		res.status(200).json({
 			message: "User updated successfully",
-			data: updatedUser,
+			data: {
+				...updatedUser,
+				csrfToken
+			}
 		});
 	} catch (e) {
 		next(e);
@@ -314,7 +318,10 @@ export const updateUserEmail = async (req, res, next) => {
 
 		res.status(200).json({
 			message: "User updated successfully",
-			data: updatedUser,
+			data: {
+				...updatedUser,
+				csrfToken
+			}
 		});
 	} catch (e) {
 		next(e);
@@ -526,6 +533,7 @@ export const refreshUser = async (req, res, next) => {
 				sid: sessionId,
 				name: user.name,
 				email: user.email,
+				csrfToken: csrfToken
 			},
 		});
 	} catch (e) {

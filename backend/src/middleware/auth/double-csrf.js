@@ -5,9 +5,9 @@ export const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
   getSessionIdentifier: (req) => req.user.sid,
   cookieName: "__Host-psifi.x-csrf-token",
   cookieOptions: {
-    sameSite: "strict",
+    sameSite: "none",
     path: "/",
     secure: true,
-    httpOnly: false,
+    httpOnly: true,
   }
 });

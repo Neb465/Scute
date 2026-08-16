@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import { useProfileStore } from "../stores/useProfileStore";
+import { csrfToken } from "../stores/useCsrfStore";
 import { fallbackFetch } from "./fallback-fetch-api";
 import { useEffect } from "react";
-import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -64,6 +64,8 @@ const loginUser = async ({ name, email, password }) => {
 		throw new Error(data.message || "Login account failed.");
 	}
 
+	csrfToken.set(data.data.csrfToken);
+
 	return data.data;
 };
 
@@ -80,6 +82,8 @@ const logoutUser = async () => {
 	if (!response.ok) {
 		throw new Error(data.message || "Logout account failed.");
 	}
+
+	csrfToken.clear();
 
 	return data.message;
 };
@@ -125,7 +129,7 @@ const resetPassword = async ({ token, newPass }) => {
 
 const updateName = async ({ fieldQuery, setAuthenticated, setLogin }) => {
 	try {
-		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+		const xsrfToken = csrfToken.get();
 
 		const data = await fallbackFetch(`${API_URL}/api/auth/me/name`, {
 			method: "PUT",
@@ -137,6 +141,8 @@ const updateName = async ({ fieldQuery, setAuthenticated, setLogin }) => {
 				fieldQuery: fieldQuery,
 			}),
 		});
+
+		csrfToken.set(data.data.csrfToken);
 
 		return data.data;
 	} catch (e) {
@@ -152,7 +158,7 @@ const updateEmail = async ({
 	setLogin,
 }) => {
 	try {
-		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+		const xsrfToken = csrfToken.get();
 		
 		const data = await fallbackFetch(
 			`${API_URL}/api/auth/me/email`,
@@ -169,6 +175,8 @@ const updateEmail = async ({
 			},
 		);
 
+		csrfToken.set(data.data.csrfToken);
+
 		return data.data;
 	} catch (e) {
 		handleSessionError(e, setAuthenticated, setLogin);
@@ -183,7 +191,7 @@ const updatePass = async ({
 	setLogin,
 }) => {
 	try {
-		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+		const xsrfToken = csrfToken.get();
 
 		const data = await fallbackFetch(
 			`${API_URL}/api/auth/me/password`,
@@ -200,6 +208,8 @@ const updatePass = async ({
 			},
 		);
 
+		csrfToken.clear();
+
 		return data.data;
 	} catch (e) {
 		handleSessionError(e, setAuthenticated, setLogin);
@@ -209,7 +219,7 @@ const updatePass = async ({
 
 const deleteUser = async ({ password, setAuthenticated, setLogin }) => {
 	try {
-		const xsrfToken = Cookies.get('__Host-psifi.x-csrf-token');
+		const xsrfToken = csrfToken.get();
 
 		const data = await fallbackFetch(
 			`${API_URL}/api/auth/me`,
@@ -225,6 +235,7 @@ const deleteUser = async ({ password, setAuthenticated, setLogin }) => {
 			},
 		);
 
+		csrfToken.clear();
 	} catch (e) {
 		handleSessionError(e, setAuthenticated, setLogin);
 		throw e;
@@ -271,16 +282,17 @@ export const useRegisterUserMutation = () => {
 
 export const useLoginMutation = () => {
 	const queryClient = useQueryClient();
-
+ 
 	const setAuth = useProfileStore((state) => state.handleAuthenticated);
 	const setLogin = useProfileStore((state) => state.handleLogin);
 
 	return useMutation({
 		mutationFn: ({ email, password }) => loginUser({ email, password }),
 		onSuccess: (user) => {
+			const { csrfToken, ...userData } = user; 
 			setAuth(true);
 			setLogin(false);
-			queryClient.setQueryData(["userDataFetch"], user);
+			queryClient.setQueryData(["userDataFetch"], userData);
 		},
 	});
 };
@@ -308,7 +320,8 @@ export const useUpdateNameMutation = () => {
 		mutationFn: ({ fieldQuery }) =>
 			updateName({ fieldQuery, setAuthenticated: setAuth, setLogin: setLogin }),
 		onSuccess: (updatedUser) => {
-			queryClient.setQueryData(["userDataFetch"], updatedUser);
+			const { csrfToken, ...userData } = updatedUser; 
+			queryClient.setQueryData(["userDataFetch"], userData);
 		},
 	});
 };
@@ -330,7 +343,8 @@ export const useUpdateEmailMutation = () => {
 				setLogin: setLogin,
 			}),
 		onSuccess: (updatedUser) => {
-			queryClient.setQueryData(["userDataFetch"], updatedUser);
+			const { csrfToken, ...userData } = updatedUser; 
+			queryClient.setQueryData(["userDataFetch"], userData);
 			setEmailIsEditing(false);
 		},
 	});
