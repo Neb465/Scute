@@ -171,7 +171,10 @@ export const logoutUser = async (req, res, next) => {
 		const { payload } = await jwtVerify(refreshToken, refreshSecret);
 		const userId = payload.id;
 
-		await deleteRefreshTokenService(userId, hashedToken);
+		if (refreshToken) {
+			await deleteRefreshTokenService(userId, hashedToken);
+		}
+		
 
 		res.clearCookie("accessToken", {
 			httpOnly: true,
@@ -193,8 +196,6 @@ export const logoutUser = async (req, res, next) => {
 			secure: true,
 			httpOnly: true,
 		});
-
-		console.log("logged out");
 
 		return res.status(200).json({
 			message: "Logged out successfully",

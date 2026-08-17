@@ -23,18 +23,10 @@ export const fallbackFetch = async (url, options = {}) => {
 		});
 
 		if (refetch.status === 403) {
-			await fetch(`${API_URL}/api/auth/logout`, {
-				method: "POST",
-				credentials: "include",
-			});
 			throw createFetchError("Session expired. Re-login.", 403);
 		}
 
 		if (!refetch.ok) {
-			await fetch(`${API_URL}/api/auth/logout`, {
-				method: "POST",
-				credentials: "include",
-			});
 			throw createFetchError("Unable to refresh session.", refetch.status);
 		}
 

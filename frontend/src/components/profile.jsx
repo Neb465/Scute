@@ -235,7 +235,7 @@ const Profile = () => {
 							/>
 
 							<input
-								type="text"
+								type="password"
 								value={profileHook.confirmEmailQuery}
 								onChange={(e) =>
 									profileHook.setConfirmEmailQuery(e.target.value)
@@ -275,7 +275,7 @@ const Profile = () => {
 					{profilePassIsEditing && (
 						<div className="relative flex flex-col items-center rounded-xl w-full h-30 gap-2 bg-white">
 							<input
-								type="text"
+								type="password"
 								value={profileHook.passEditingQuery}
 								onChange={(e) =>
 									profileHook.setPassEditingQuery(e.target.value)
@@ -287,7 +287,7 @@ const Profile = () => {
 							/>
 
 							<input
-								type="text"
+								type="password"
 								value={profileHook.confirmPassQuery}
 								onChange={(e) =>
 									profileHook.setConfirmPassQuery(e.target.value)
@@ -333,7 +333,7 @@ const Profile = () => {
 							</h1>
 
 							<input
-								type="text"
+								type="password"
 								value={profileHook.confirmDeleteQuery}
 								onChange={(e) =>
 									profileHook.setConfirmDeleteQuery(e.target.value)
