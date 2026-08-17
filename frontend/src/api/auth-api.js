@@ -11,6 +11,7 @@ const handleSessionError = (e, setAuthenticated, setLogin) => {
 	if (e.status === 403) {
 		setAuthenticated(false);
 		setLogin(true);
+		logoutUser();
 	}
 };
 

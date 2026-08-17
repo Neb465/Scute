@@ -157,27 +157,6 @@ export const loginUser = async (req, res, next) => {
 
 export const logoutUser = async (req, res, next) => {
 	try {
-		res.clearCookie("accessToken", {
-			httpOnly: true,
-			secure: true,
-			sameSite: "none",
-			maxAge: ms("1h"),
-			path: "/"
-		});
-		res.clearCookie("refreshToken", {
-			httpOnly: true,
-			secure: true,
-			sameSite: "none",
-			maxAge: ms("1h"),
-			path: "/"
-		});
-		res.clearCookie("__Host-psifi.x-csrf-token", {
-			sameSite: "strict",
-			path: "/",
-			secure: true,
-			httpOnly: true,
-		});
-
 		const refreshToken = req.cookies.refreshToken;
 
 		const hashedToken = await crypto
@@ -193,6 +172,29 @@ export const logoutUser = async (req, res, next) => {
 		const userId = payload.id;
 
 		await deleteRefreshTokenService(userId, hashedToken);
+
+		res.clearCookie("accessToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
+		res.clearCookie("refreshToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			maxAge: ms("1h"),
+			path: "/"
+		});
+		res.clearCookie("__Host-psifi.x-csrf-token", {
+			sameSite: "none",
+			path: "/",
+			secure: true,
+			httpOnly: true,
+		});
+
+		console.log("logged out");
 
 		return res.status(200).json({
 			message: "Logged out successfully",
@@ -364,7 +366,7 @@ export const updateUserPassword = async (req, res, next) => {
 			path: "/"
 		});
 		res.clearCookie("__Host-psifi.x-csrf-token", {
-			sameSite: "strict",
+			sameSite: "none",
 			path: "/",
 			secure: true,
 			httpOnly: true,
@@ -406,7 +408,7 @@ export const deleteUser = async (req, res, next) => {
 			path: "/"
 		});
 		res.clearCookie("__Host-psifi.x-csrf-token", {
-			sameSite: "strict",
+			sameSite: "none",
 			path: "/",
 			secure: true,
 			httpOnly: true,
@@ -475,7 +477,7 @@ export const refreshUser = async (req, res, next) => {
 				path: "/"
 			});
 			res.clearCookie("__Host-psifi.x-csrf-token", {
-				sameSite: "strict",
+				sameSite: "none",
 				path: "/",
 				secure: true,
 				httpOnly: true,
@@ -502,7 +504,7 @@ export const refreshUser = async (req, res, next) => {
 			.sign(accessSecret);
 
 		res.clearCookie("__Host-psifi.x-csrf-token", {
-			sameSite: "strict",
+			sameSite: "none",
 			path: "/",
 			secure: true,
 			httpOnly: true,
@@ -699,6 +701,12 @@ export const resetPassword = async (req, res, next) => {
 			sameSite: "none",
 			maxAge: ms("1h"),
 			path: "/"
+		});
+		res.clearCookie("__Host-psifi.x-csrf-token", {
+			sameSite: "none",
+			path: "/",
+			secure: true,
+			httpOnly: true,
 		});
 
 		res.status(200).json({ message: "User updated successfully" });
