@@ -2,6 +2,7 @@ import express from "express";
 import {
 	deleteUser,
 	forgotPassword,
+	getCsrfToken,
 	loginUser,
 	logoutUser,
 	refreshUser,
@@ -28,6 +29,8 @@ import { authorizeWithoutId } from "../middleware/auth/authorization-handler.js"
 import { doubleCsrfProtection } from "../middleware/auth/double-csrf.js";
 
 const router = express.Router();
+
+router.get("/csrf-token", authenticate, getCsrfToken);
 
 router.put(
 	"/me/name",

@@ -121,7 +121,7 @@ const Profile = () => {
 									</button>
 
 									<button
-										className="w-1/12 rounded-xl bg-[#dedede] text-red-500 hover:bg-[#c9c9c9] transition-colors text-[10px] md:text-[12px] lg:text-[13px]"
+										className="w-1/12 rounded-xl bg-[#dedede] text-red-500 hover:bg-[#c9c9c9] transition-colors text-[10px] md:text-[12px] lg:text-[13px] font-bold"
 										onClick={() => {
 											profileHandleNameIsEditing(false);
 											profileHook.setNameEditingQuery("");

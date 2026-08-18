@@ -1,11 +1,23 @@
+import { useState } from "react";
 import { useMapStore } from "../stores/useMapStore";
 
 const PathInfo = ({ routeButton }) => {
 	const startFinalQuery = useMapStore((state) => state["start"].finalQuery);
 	const endFinalQuery = useMapStore((state) => state["end"].finalQuery);
+	
+	const [visible, setVisible] = useState(true);
 
-	return (
+	return (visible &&
 		<div className="fixed bg-white flex flex-col items-center justify-center px-3 py-2 min-h-30 md:min-h-35 lg:min-h-40 min-w-35 md:min-w-45 lg:min-w-55 max-w-60 md:max-w-72 lg:max-w-80 rounded-lg opacity-65 hover:opacity-100 bottom-6 right-2 z-1000">
+			<button
+				className="text-red-500 font-bold absolute top-1 right-0 hover:bg-gray-300 rounded-xl px-2"
+				onClick={() => {
+					setVisible(false);
+				}}
+			>
+				X
+			</button>
+			
 			<p className="py-2">Start location: <span className="text-blue-700">{startFinalQuery}</span></p>
 			<p className="py-2">End location: <span className="text-blue-700">{endFinalQuery}</span></p>
 			<p className="py-2">Distance: {(routeButton.dist).toFixed(2)} miles</p>

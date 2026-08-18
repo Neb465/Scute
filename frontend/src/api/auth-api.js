@@ -27,6 +27,17 @@ const fetchUserData = async (setAuthenticated, setLogin) => {
 	}
 };
 
+const fetchCsrfToken = async () => {
+	const response = await fetch(`${API_URL}/api/auth/csrf-token`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Failed to fetch CSRF token");
+
+  csrfToken.set(data.data.csrfToken);
+}
+
 const registerUser = async ({ name, email, password }) => {
 	const response = await fetch(`${API_URL}/api/auth/register`, {
 		method: "POST",
@@ -258,6 +269,7 @@ export const useFetchUser = () => {
 	useEffect(() => {
 		if (query.isSuccess && query.data) {
       setAuth(true);
+			fetchCsrfToken();
     }
     
     // Case 2: Fetch failed (User logged out / 403)

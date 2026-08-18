@@ -31,7 +31,7 @@ app.use(identifyUser);
 app.use("/api/users", limiter, user);
 app.use("/api/auth", limiter, auth);
 app.use("/api/geocode", geocode);
-app.use("/api/astar", pathfindingLimiter, pathfinding); //ADD LIMITER IN FUTURE
+app.use("/api/astar", pathfindingLimiter, pathfinding);
 
 //Error Handler
 app.use(notFound);

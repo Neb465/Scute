@@ -423,6 +423,15 @@ export const deleteUser = async (req, res, next) => {
 	}
 };
 
+export const getCsrfToken = (req, res) => {
+  try {
+    const csrfToken = generateCsrfToken(req, res);
+    return res.status(200).json({ data: { csrfToken } });
+  } catch (e) {
+    next(e);
+  }
+};
+
 /*
 Handle expiry on the client side When a request fails with a 401, 
 your frontend should automatically call /auth/refresh to get a new access token, 

@@ -181,7 +181,7 @@ def reconstruct_path(current_node: Node):
       current_node (Node): The current node.
 
     Returns:
-      list[Node]: A list of the nodes in the constructed path.
+      list[list[Node], Distance]: A list of the nodes in the constructed path and the path's distance.
     
     """
     path = []
@@ -286,7 +286,7 @@ def a_star(start: list[float, float], goal: list[float, float], graph, graph_nod
       graph: The graph.
 
     Returns:
-      list[Node]: A list of the nodes in the constructed path.
+      list[list[Node], Distance]: A list of the nodes in the constructed path and the distance of the path.
     
     """
     #Convert start and goal to tuples to prevent type issues in code

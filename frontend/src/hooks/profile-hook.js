@@ -55,6 +55,6 @@ export const useProfile = () => {
     setPassEditingQuery,
 		setConfirmEmailQuery,
 		setConfirmPassQuery,
-    setConfirmDeleteQuery
+    setConfirmDeleteQuery,
 	};
 };
