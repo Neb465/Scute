@@ -1,10 +1,10 @@
 ## Overview
 
-- Interactive map UI with search, login, account creation, and route display
-- Campus route generation using a custom A* pathfinding service
-- API-backed authentication and user features
-- Local development with PostgreSQL
-- Production deployment on Render, with Supabase used in production for database hosting
+An interactive map routing application localized to the University of Maryland protected through auth. Custom user auth includes: account creation, login, logout, reset password, account deletion, profile management.
+
+User auth stack:
+ - JWT tokens stored in cookies
+ - To be announced
 
 https://scute.onrender.com
 
@@ -98,6 +98,6 @@ Additional features include account creation, login, and password reset.
 
 ## Tech stack
 
-- Frontend: React, Vite, Leaflet, Tailwind CSS, TanStack Query, Zustand
-- Backend: Express, PostgreSQL, JWT/cookie-based auth, rate limiting, email support
-- Pathfinding: Python, Flask, NetworkX, Gunicorn
+- Frontend: React, Vite, Tailwind CSS
+- Backend: Express, PostgreSQL
+- Pathfinding: Python, Flask
