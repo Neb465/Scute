@@ -6,9 +6,10 @@ https://scute.onrender.com
 
 ## Auth
 
-Attached is a very simple overview of the authentication system.
+Attached is a very simple overview of the authentication system and an example of a protected route.
 
-<img width="1510" height="921" alt="Board" src="https://github.com/user-attachments/assets/d687c553-ae65-4ea0-bf98-eacad59a6d1e" />
+<img src="./docs/ScuteAuth.png" />
+<img src="./docs/ScuteExampleProtectedRoute.png" />
 
 ## Tech Stack
 
