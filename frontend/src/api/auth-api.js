@@ -261,7 +261,7 @@ export const useFetchUser = () => {
 	const query = useQuery({
 		queryKey: ["userDataFetch"],
 		queryFn: () => fetchUserData(setAuth, setLogin),
-		staleTime: 1000 * 60 * 5, //5 minutes
+		staleTime: 1000 * 60 * 60, //60 minutes
 		refetchOnWindowFocus: false,
 		retry: false,
 	});
