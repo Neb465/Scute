@@ -115,27 +115,36 @@ Attached is a very simple overview of the authentication system and an example o
 ```
 scute/
 ├── backend/
-│ ├── server.js               # Express app entry
-│ └── src/
-│   ├── controllers/          # Auth + pathfinding handlers
-│   ├── middleware/           # Auth, CSRF, validation middleware
-│   ├── models/               # Database access layer
-│   └── routes/               # API route definitions
+│ ├── server.js               # Express entry point
+│ ├── src/
+| | ├── config/               # DB setup
+│ | ├── controllers/          # Auth + pathfinding handlers
+│ | ├── middleware/           # Auth, CSRF, validation middleware
+│ | ├── models/               # Database access layer
+│ | ├── routes/               # API route definitions
+| | └── ...
+| └── ...
 ├── frontend/
-│ └── src/
-│   ├── api/                  # HTTP client calls (auth, route, fallback refresh)
-│   ├── components/           # UI components
-│   ├── hooks/                # React query/state hooks
-│   ├── pages/                # Top-level page views
-│   └── stores/               # Client-side state stores
+│ ├── src/
+│ | ├── api/                  # HTTP client calls (auth, route, fallback refresh)
+│ | ├── components/           # UI components
+│ | ├── hooks/                # React query/state hooks
+│ | ├── pages/                # Top-level page views
+│ | ├── stores/               # Client-side state stores
+| | ├── styles/               # TailwindCSS styles
+| | ├── App.jsx               # Application component
+| | └── Main.jsx              # React/Vite entry point
+| └── ...
 ├── pathfinding-service/
 │ ├── app.py                  # Flask API entry
-│ └── astar.py                # A* route calculation logic
+│ ├── astar.py                # A* route calculation logic
+| ├── umd_campus.graphml      # UMD graph data
+| └── ...
 └── README.md                 # Project overview/setup
 ```
 
 ## Tech Stack
-Frontend: React, Vite, TailwindCSS
+Frontend: ReactJS, Vite, TailwindCSS
 
 Backend: ExpressJS
 
