@@ -11,7 +11,7 @@ import pathfinding from "./src/routes/pathfinding.js";
 
 import errorHandler from "./src/middleware/error-handler.js";
 import notFound from "./src/middleware/not-found.js";
-import { limiter, pathfindingLimiter } from "./src/middleware/rate-limiter.js";
+import { limiter } from "./src/middleware/rate-limiter.js";
 import { identifyUser } from "./src/middleware/auth/identification-handler.js";
 
 const app = express();
@@ -31,7 +31,7 @@ app.use(identifyUser);
 app.use("/api/users", limiter, user);
 app.use("/api/auth", limiter, auth);
 app.use("/api/geocode", geocode);
-app.use("/api/astar", pathfindingLimiter, pathfinding);
+app.use("/api/astar", pathfinding);
 
 //Error Handler
 app.use(notFound);
